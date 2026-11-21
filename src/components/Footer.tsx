@@ -22,7 +22,7 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-sm text-blue-200 leading-relaxed max-w-md mb-4">
-              ISO 9001:2015 Certified Practical Computer &amp; Share Market Training Institute (JIT Computer). Dedicated to hands-on technical literacy, Tally &amp; GST accounting, web engineering, and disciplined financial market education.
+              ISO 9001:2015 Certified Practical Computer &amp; Share Market Training Institute (JIT Computer). Dedicated to hands-on training in Basic &amp; Advance Computing, Digital Marketing, and Share Market education.
             </p>
           </div>
 

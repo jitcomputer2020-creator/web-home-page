@@ -1,14 +1,39 @@
 import { DEFAULT_INSTITUTE_DATA, WHATSAPP_NUMBER } from '../data/defaultData';
 import { InstituteData } from '../types';
 
-const STORAGE_KEY = 'jit_institute_data_v1';
+const STORAGE_KEY = 'jit_institute_data_v2';
+const LEGACY_STORAGE_KEY = 'jit_institute_data_v1';
 
 export function loadInstituteData(): InstituteData {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) {
+      // Carry forward any custom hero photo, gallery uploads, or enquiries from v1
+      const legacyRaw = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (legacyRaw) {
+        try {
+          const legacy = JSON.parse(legacyRaw) as Partial<InstituteData>;
+          const migrated: InstituteData = {
+            ...DEFAULT_INSTITUTE_DATA,
+            heroImageUrl:
+              typeof legacy.heroImageUrl === 'string' && legacy.heroImageUrl.trim()
+                ? legacy.heroImageUrl
+                : DEFAULT_INSTITUTE_DATA.heroImageUrl,
+            gallery:
+              Array.isArray(legacy.gallery) && legacy.gallery.length > 0
+                ? legacy.gallery
+                : DEFAULT_INSTITUTE_DATA.gallery,
+            enquiries: Array.isArray(legacy.enquiries) ? legacy.enquiries : [],
+          };
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+          return migrated;
+        } catch {
+          return DEFAULT_INSTITUTE_DATA;
+        }
+      }
       return DEFAULT_INSTITUTE_DATA;
     }
+
     const parsed = JSON.parse(raw) as Partial<InstituteData>;
     return {
       heroImageUrl:
@@ -41,6 +66,7 @@ export function saveInstituteData(data: InstituteData): boolean {
 export function resetInstituteData(): InstituteData {
   try {
     window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch {
     // Ignore storage removal errors
   }

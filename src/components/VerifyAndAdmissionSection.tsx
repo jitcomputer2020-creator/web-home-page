@@ -161,7 +161,7 @@ export const VerifyAndAdmissionSection: React.FC<VerifyAndAdmissionSectionProps>
             {certificates.length > 0 && (
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                 <span>Sample IDs:</span>
-                {certificates.slice(0, 2).map((sample) => (
+                {certificates.slice(0, 3).map((sample) => (
                   <button
                     key={sample.id}
                     type="button"
@@ -344,7 +344,7 @@ export const VerifyAndAdmissionSection: React.FC<VerifyAndAdmissionSectionProps>
                     >
                       {courses.map((c) => (
                         <option key={c.id} value={c.title}>
-                          {c.title} ({c.duration})
+                          {c.title}
                         </option>
                       ))}
                     </select>

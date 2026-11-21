@@ -16,7 +16,7 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import { DEFAULT_HERO_IMAGE } from '../data/defaultData';
+import { DEFAULT_HERO_IMAGE, OFFICIAL_COURSE_NAMES } from '../data/defaultData';
 import {
   CertificateRecord,
   Course,
@@ -47,10 +47,9 @@ type AdminTab =
   | 'certificates';
 
 const COURSE_CATEGORIES: CourseCategory[] = [
-  'Basic & Office',
-  'Tally & GST',
-  'Web & AI',
-  'Share Market Trading',
+  'Basic and Advance',
+  'Digital Marketing',
+  'Share Market',
 ];
 
 const GALLERY_CATEGORIES: GalleryCategory[] = ['Classroom', 'Events', 'Students'];
@@ -77,7 +76,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [revName, setRevName] = useState('');
   const [revRating, setRevRating] = useState(5);
-  const [revCourse, setRevCourse] = useState('');
+  const [revCourse, setRevCourse] = useState<string>(OFFICIAL_COURSE_NAMES[0]);
   const [revDate, setRevDate] = useState('November 2026');
   const [revText, setRevText] = useState('');
 
@@ -89,7 +88,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   // Course states
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [courseTitle, setCourseTitle] = useState('');
-  const [courseCategory, setCourseCategory] = useState<CourseCategory>('Basic & Office');
+  const [courseCategory, setCourseCategory] = useState<CourseCategory>('Basic and Advance');
   const [courseDuration, setCourseDuration] = useState('');
   const [courseSummary, setCourseSummary] = useState('');
   const [courseModulesText, setCourseModulesText] = useState('');
@@ -183,7 +182,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setEditingReviewId(null);
     setRevName('');
     setRevRating(5);
-    setRevCourse('');
+    setRevCourse(OFFICIAL_COURSE_NAMES[0]);
     setRevDate('November 2026');
     setRevText('');
   };
@@ -264,7 +263,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const resetCourseForm = () => {
     setEditingCourseId(null);
     setCourseTitle('');
-    setCourseCategory('Basic & Office');
+    setCourseCategory('Basic and Advance');
     setCourseDuration('');
     setCourseSummary('');
     setCourseModulesText('');
@@ -619,7 +618,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         type="text"
                         value={galCaption}
                         onChange={(e) => setGalCaption(e.target.value)}
-                        placeholder="e.g. Tally Prime afternoon lab session"
+                        placeholder="e.g. Basic and Advance afternoon lab session"
                         className="w-full min-h-[44px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-900"
                       />
                     </div>
@@ -716,14 +715,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
                       Course Taken
                     </label>
-                    <input
-                      type="text"
-                      required
+                    <select
                       value={revCourse}
                       onChange={(e) => setRevCourse(e.target.value)}
-                      placeholder="e.g. Tally Prime with GST"
                       className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
-                    />
+                    >
+                      {Array.from(
+                        new Set([
+                          ...OFFICIAL_COURSE_NAMES,
+                          ...data.courses.map((c) => c.title),
+                        ])
+                      ).map((title) => (
+                        <option key={title} value={title}>
+                          {title}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -965,7 +972,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       required
                       value={courseTitle}
                       onChange={(e) => setCourseTitle(e.target.value)}
-                      placeholder="e.g. Tally Prime Expert"
+                      placeholder="e.g. Basic and Advance"
                       className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
                     />
                   </div>
@@ -1025,7 +1032,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       rows={3}
                       value={courseModulesText}
                       onChange={(e) => setCourseModulesText(e.target.value)}
-                      placeholder={'Company Creation & Ledgers\nGST Billing & GSTR-1\nBank Reconciliation'}
+                      placeholder={'Introduction to Computers\nComputer Hardware Basics\nMicrosoft Office'}
                       className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
                     />
                   </div>
@@ -1222,14 +1229,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
                       Course Completed
                     </label>
-                    <input
-                      type="text"
-                      required
+                    <select
                       value={certCourse}
                       onChange={(e) => setCertCourse(e.target.value)}
-                      placeholder="Course Name"
                       className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
-                    />
+                    >
+                      {Array.from(
+                        new Set([
+                          ...OFFICIAL_COURSE_NAMES,
+                          ...data.courses.map((c) => c.title),
+                        ])
+                      ).map((title) => (
+                        <option key={title} value={title}>
+                          {title}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>

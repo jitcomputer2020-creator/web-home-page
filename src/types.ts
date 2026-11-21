@@ -1,8 +1,7 @@
 export type CourseCategory =
-  | 'Basic & Office'
-  | 'Tally & GST'
-  | 'Web & AI'
-  | 'Share Market Trading';
+  | 'Basic and Advance'
+  | 'Digital Marketing'
+  | 'Share Market';
 
 export interface Course {
   id: string;
@@ -11,6 +10,7 @@ export interface Course {
   duration: string;
   modules: string[];
   summary: string;
+  footerNote?: string;
 }
 
 export type GalleryCategory = 'Classroom' | 'Events' | 'Students';

@@ -75,7 +75,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews }) => {
             </div>
 
             <p className="text-slate-600 text-sm sm:text-base">
-              Verified student experiences from our Tally, Web &amp; AI, and Share Market cohorts ({reviews.length} featured reviews).
+              Verified student experiences from our Basic and Advance, Digital Marketing, and Share Market cohorts ({reviews.length} featured reviews).
             </p>
           </div>
 

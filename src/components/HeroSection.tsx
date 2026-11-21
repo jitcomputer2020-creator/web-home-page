@@ -36,7 +36,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ heroImageUrl }) => {
             </h1>
 
             <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-xl mb-7">
-              Learn on dedicated desktop workstations at <strong className="font-semibold text-blue-950">JIT Computer</strong>—covering MS Office, Tally Prime with GST, Web &amp; AI workflows, and live chart technical analysis with hands-on mentorship.
+              Learn on dedicated desktop workstations at <strong className="font-semibold text-blue-950">JIT Computer</strong>—featuring <strong className="font-semibold text-blue-950">Basic and Advance</strong>, <strong className="font-semibold text-blue-950">Digital Marketing</strong>, and <strong className="font-semibold text-blue-950">Share Market</strong> training with hands-on mentorship.
             </p>
 
             <div className="flex flex-wrap items-center gap-4 mb-8">
@@ -95,7 +95,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ heroImageUrl }) => {
                   Jharna Institute of Technology (JIT)
                 </p>
                 <p className="text-sm font-semibold text-white">
-                  Dedicated Computer Labs · Live Charting &amp; Tally Workstations
+                  Dedicated Computer Labs · Live Charting &amp; Digital Workstations
                 </p>
               </div>
             </div>
