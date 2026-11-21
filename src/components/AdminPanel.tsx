@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Award,
   BookOpen,
+  Building2,
   Check,
   Download,
   Image as ImageIcon,
@@ -21,7 +22,7 @@ import {
   Video,
   X,
 } from 'lucide-react';
-import { DEFAULT_HERO_IMAGE } from '../data/defaultData';
+import { DEFAULT_HERO_IMAGE, DEFAULT_STOREFRONT_IMAGE } from '../data/defaultData';
 import {
   CertificateRecord,
   Course,
@@ -29,6 +30,9 @@ import {
   CustomSectionPlacement,
   CustomSectionTheme,
   EnquiryStatus,
+  FacilityBentoCard,
+  FacilityCardStyle,
+  FacilityIconKey,
   FeatureIconKey,
   FeatureItem,
   GalleryCategory,
@@ -60,6 +64,7 @@ interface AdminPanelProps {
 type AdminTab =
   | 'branding'
   | 'hero-media'
+  | 'campus'
   | 'courses'
   | 'gallery'
   | 'notices-features'
@@ -69,6 +74,16 @@ type AdminTab =
 
 const GALLERY_CATEGORIES: GalleryCategory[] = ['Classroom', 'Events', 'Students'];
 const NOTICE_BADGES: NoticeBadge[] = ['New', 'Exam', 'Batch', 'Holiday'];
+const FACILITY_ICONS: FacilityIconKey[] = [
+  'Monitor',
+  'Code2',
+  'TrendingUp',
+  'Users',
+  'Laptop',
+  'Award',
+  'BookOpen',
+  'Cpu',
+];
 const FEATURE_ICONS: FeatureIconKey[] = [
   'Laptop',
   'Users',
@@ -116,6 +131,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [heroImageUrl, setHeroImageUrl] = useState(data.hero.heroImageUrl);
   const [heroVideoUrl, setHeroVideoUrl] = useState(data.hero.heroVideoUrl);
   const [heroCaption, setHeroCaption] = useState(data.hero.mediaCaption);
+
+  // 2b. Campus & Facilities Showcase
+  const [campusSectionTitle, setCampusSectionTitle] = useState(data.campusShowcase.sectionTitle);
+  const [storefrontImageUrl, setStorefrontImageUrl] = useState(
+    data.campusShowcase.storefrontImageUrl
+  );
+  const [locationBadge, setLocationBadge] = useState(data.campusShowcase.locationBadge);
+  const [bentoCards, setBentoCards] = useState<FacilityBentoCard[]>(data.campusShowcase.bentoCards);
+  const [welcomeHeading, setWelcomeHeading] = useState(data.campusShowcase.welcomeHeading);
+  const [welcomeDescription, setWelcomeDescription] = useState(
+    data.campusShowcase.welcomeDescription
+  );
+  const [campusRatingText, setCampusRatingText] = useState(data.campusShowcase.ratingText);
+  const [campusCtaLabel, setCampusCtaLabel] = useState(data.campusShowcase.ctaLabel);
 
   // 3. Courses
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
@@ -195,6 +224,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setHeroImageUrl(data.hero.heroImageUrl);
     setHeroVideoUrl(data.hero.heroVideoUrl);
     setHeroCaption(data.hero.mediaCaption);
+    setCampusSectionTitle(data.campusShowcase.sectionTitle);
+    setStorefrontImageUrl(data.campusShowcase.storefrontImageUrl);
+    setLocationBadge(data.campusShowcase.locationBadge);
+    setBentoCards(data.campusShowcase.bentoCards);
+    setWelcomeHeading(data.campusShowcase.welcomeHeading);
+    setWelcomeDescription(data.campusShowcase.welcomeDescription);
+    setCampusRatingText(data.campusShowcase.ratingText);
+    setCampusCtaLabel(data.campusShowcase.ctaLabel);
     setContactPhone(data.contact.phone);
     setWhatsappNumber(data.contact.whatsappNumber);
     setContactEmail(data.contact.email);
@@ -205,7 +242,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setFacebookUrl(data.contact.facebookUrl);
     setInstagramUrl(data.contact.instagramUrl);
     setYoutubeUrl(data.contact.youtubeUrl);
-  }, [data.branding, data.hero, data.contact]);
+  }, [data.branding, data.hero, data.campusShowcase, data.contact]);
 
   if (!isOpen) return null;
 
@@ -351,6 +388,66 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       },
     }));
     showToast('Hero media settings saved.');
+  };
+
+  // --- Tab 2b: Campus & Facilities Showcase ---
+  const handleStorefrontUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingMedia(true);
+    try {
+      const compressed = await compressImageFile(file, 1280, 0.84);
+      setStorefrontImageUrl(compressed);
+      onUpdateData((prev) => ({
+        ...prev,
+        campusShowcase: { ...prev.campusShowcase, storefrontImageUrl: compressed },
+      }));
+      showToast('Campus storefront photo uploaded.');
+    } catch {
+      showToast('Failed to process storefront photo.');
+    } finally {
+      setUploadingMedia(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleBentoCardImageUpload = async (
+    cardIndex: number,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingMedia(true);
+    try {
+      const compressed = await compressImageFile(file, 720, 0.82);
+      setBentoCards((prev) =>
+        prev.map((card, i) => (i === cardIndex ? { ...card, imageUrl: compressed } : card))
+      );
+      showToast('Facility card image ready — click Save Campus Showcase.');
+    } catch {
+      showToast('Could not process facility card image.');
+    } finally {
+      setUploadingMedia(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleSaveCampusShowcase = (e: React.FormEvent) => {
+    e.preventDefault();
+    onUpdateData((prev) => ({
+      ...prev,
+      campusShowcase: {
+        sectionTitle: campusSectionTitle.trim() || prev.campusShowcase.sectionTitle,
+        storefrontImageUrl: storefrontImageUrl.trim() || DEFAULT_STOREFRONT_IMAGE,
+        locationBadge: locationBadge.trim() || prev.campusShowcase.locationBadge,
+        bentoCards,
+        welcomeHeading: welcomeHeading.trim() || prev.campusShowcase.welcomeHeading,
+        welcomeDescription: welcomeDescription.trim() || prev.campusShowcase.welcomeDescription,
+        ratingText: campusRatingText.trim() || prev.campusShowcase.ratingText,
+        ctaLabel: campusCtaLabel.trim() || prev.campusShowcase.ctaLabel,
+      },
+    }));
+    showToast('Campus & Facilities showcase saved.');
   };
 
   // --- Tab 3: Courses ---
@@ -769,6 +866,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   }> = [
     { id: 'branding', label: 'Branding & Texts', icon: Type },
     { id: 'hero-media', label: 'Hero Media', icon: LayoutTemplate },
+    { id: 'campus', label: 'Campus & Facilities', icon: Building2 },
     { id: 'courses', label: 'Courses', icon: BookOpen },
     { id: 'gallery', label: 'Photo & Video Gallery', icon: ImageIcon },
     { id: 'notices-features', label: 'Notices & Features', icon: Megaphone },
@@ -1180,6 +1278,292 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 className="min-h-[44px] px-6 py-2.5 rounded-lg bg-[#F59E0B] hover:bg-amber-400 text-slate-950 font-bold text-sm cursor-pointer"
               >
                 Save Hero Media Settings
+              </button>
+            </form>
+          )}
+
+          {/* TAB 2B: CAMPUS & FACILITIES SHOWCASE */}
+          {activeTab === 'campus' && (
+            <form onSubmit={handleSaveCampusShowcase} className="space-y-8">
+              {/* Storefront Card & Location Badge */}
+              <div className="rounded-xl border border-slate-200 p-5 bg-slate-50/50 space-y-4">
+                <h3 className="font-display font-bold text-lg text-[#0A2463]">
+                  Campus Storefront Photo &amp; Location Badge
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Section Heading
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={campusSectionTitle}
+                      onChange={(e) => setCampusSectionTitle(e.target.value)}
+                      className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Floating Location Pill Badge
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={locationBadge}
+                      onChange={(e) => setLocationBadge(e.target.value)}
+                      placeholder="Barasat, Kolkata"
+                      className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Campus Storefront Photo URL or Upload
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      value={storefrontImageUrl}
+                      onChange={(e) => setStorefrontImageUrl(e.target.value)}
+                      placeholder="https://... or upload storefront photo"
+                      className="flex-1 min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+                    />
+                    <label className="inline-flex items-center justify-center gap-1.5 min-h-[42px] px-4 py-2 rounded-lg bg-[#0A2463] text-white text-xs font-semibold cursor-pointer whitespace-nowrap">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{uploadingMedia ? 'Uploading...' : 'Upload Photo'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleStorefrontUpload}
+                        className="sr-only"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setStorefrontImageUrl(DEFAULT_STOREFRONT_IMAGE)}
+                      className="min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-700 cursor-pointer"
+                    >
+                      Reset Default
+                    </button>
+                  </div>
+                </div>
+
+                <div className="w-44 aspect-[3/4] rounded-xl overflow-hidden border border-slate-200 bg-slate-200">
+                  <img
+                    src={storefrontImageUrl || DEFAULT_STOREFRONT_IMAGE}
+                    alt="Storefront preview"
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* 4 Bento Grid Facility Cards */}
+              <div className="rounded-xl border border-slate-200 p-5 bg-slate-50/50 space-y-4">
+                <h3 className="font-display font-bold text-lg text-[#0A2463]">
+                  2x2 Facility Bento Grid Cards
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {bentoCards.map((card, idx) => (
+                    <div
+                      key={card.id}
+                      className="rounded-xl border border-slate-200 bg-white p-4 space-y-3"
+                    >
+                      <p className="text-xs font-bold text-amber-700">
+                        Bento Card #{idx + 1}
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                            Title
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={card.title}
+                            onChange={(e) =>
+                              setBentoCards((prev) =>
+                                prev.map((item, i) =>
+                                  i === idx ? { ...item, title: e.target.value } : item
+                                )
+                              )
+                            }
+                            className="w-full min-h-[38px] px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                            Subtitle
+                          </label>
+                          <input
+                            type="text"
+                            value={card.subtitle}
+                            onChange={(e) =>
+                              setBentoCards((prev) =>
+                                prev.map((item, i) =>
+                                  i === idx ? { ...item, subtitle: e.target.value } : item
+                                )
+                              )
+                            }
+                            className="w-full min-h-[38px] px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs sm:text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                            Background Style
+                          </label>
+                          <select
+                            value={card.cardStyle}
+                            onChange={(e) =>
+                              setBentoCards((prev) =>
+                                prev.map((item, i) =>
+                                  i === idx
+                                    ? { ...item, cardStyle: e.target.value as FacilityCardStyle }
+                                    : item
+                                )
+                              )
+                            }
+                            className="w-full min-h-[38px] px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs sm:text-sm"
+                          >
+                            <option value="navy-gradient">Deep Navy-Blue Gradient</option>
+                            <option value="white-elevated">Clean White Elevated</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                            Icon Visual
+                          </label>
+                          <select
+                            value={card.icon}
+                            onChange={(e) =>
+                              setBentoCards((prev) =>
+                                prev.map((item, i) =>
+                                  i === idx
+                                    ? { ...item, icon: e.target.value as FacilityIconKey }
+                                    : item
+                                )
+                              )
+                            }
+                            className="w-full min-h-[38px] px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs sm:text-sm"
+                          >
+                            {FACILITY_ICONS.map((iconName) => (
+                              <option key={iconName} value={iconName}>
+                                {iconName}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                          Optional Custom Image URL or Upload (overrides icon)
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={card.imageUrl}
+                            onChange={(e) =>
+                              setBentoCards((prev) =>
+                                prev.map((item, i) =>
+                                  i === idx ? { ...item, imageUrl: e.target.value } : item
+                                )
+                              )
+                            }
+                            placeholder="Leave empty to show clean icon visual"
+                            className="flex-1 min-h-[38px] px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs"
+                          />
+                          <label className="inline-flex items-center justify-center gap-1 min-h-[38px] px-3 py-1.5 rounded-lg bg-[#0A2463] text-white text-xs font-semibold cursor-pointer">
+                            <Upload className="w-3 h-3" />
+                            <span>Upload</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleBentoCardImageUpload(idx, e)}
+                              className="sr-only"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Column: Welcome & Highlights Panel */}
+              <div className="rounded-xl border border-slate-200 p-5 bg-slate-50/50 space-y-4">
+                <h3 className="font-display font-bold text-lg text-[#0A2463]">
+                  Welcome &amp; Highlights Panel
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Welcome Heading
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={welcomeHeading}
+                      onChange={(e) => setWelcomeHeading(e.target.value)}
+                      className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Google Rating Text
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={campusRatingText}
+                      onChange={(e) => setCampusRatingText(e.target.value)}
+                      placeholder="4.9/5 Student Rating"
+                      className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      CTA Button Label
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={campusCtaLabel}
+                      onChange={(e) => setCampusCtaLabel(e.target.value)}
+                      className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Welcome Description
+                  </label>
+                  <textarea
+                    rows={2}
+                    required
+                    value={welcomeDescription}
+                    onChange={(e) => setWelcomeDescription(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="min-h-[44px] px-6 py-2.5 rounded-lg bg-[#F59E0B] hover:bg-amber-400 text-slate-950 font-bold text-sm cursor-pointer"
+              >
+                Save Campus &amp; Facilities Showcase
               </button>
             </form>
           )}

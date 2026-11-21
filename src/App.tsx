@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { AdminPanel } from './components/AdminPanel';
+import { CampusShowcaseSection } from './components/CampusShowcaseSection';
 import { CourseModal } from './components/CourseModal';
 import { CoursesSection } from './components/CoursesSection';
 import { CustomSectionsRenderer } from './components/CustomSectionsRenderer';
@@ -130,6 +131,11 @@ export default function App() {
         <CustomSectionsRenderer sections={data.customSections} placement="after-hero" />
 
         <WhyChooseSection features={data.features} />
+
+        <CampusShowcaseSection
+          campusShowcase={data.campusShowcase}
+          onOpenDemoModal={() => setDemoModalOpen(true)}
+        />
 
         <CoursesSection
           courses={data.courses}

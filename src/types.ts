@@ -131,9 +131,42 @@ export interface AdmissionEnquiry {
   status: EnquiryStatus;
 }
 
+export type FacilityCardStyle = 'navy-gradient' | 'white-elevated';
+
+export type FacilityIconKey =
+  | 'Monitor'
+  | 'Code2'
+  | 'TrendingUp'
+  | 'Users'
+  | 'Laptop'
+  | 'Award'
+  | 'BookOpen'
+  | 'Cpu';
+
+export interface FacilityBentoCard {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: FacilityIconKey;
+  imageUrl: string;
+  cardStyle: FacilityCardStyle;
+}
+
+export interface CampusShowcaseSettings {
+  sectionTitle: string;
+  storefrontImageUrl: string;
+  locationBadge: string;
+  bentoCards: FacilityBentoCard[];
+  welcomeHeading: string;
+  welcomeDescription: string;
+  ratingText: string;
+  ctaLabel: string;
+}
+
 export interface InstituteData {
   branding: BrandingSettings;
   hero: HeroSettings;
+  campusShowcase: CampusShowcaseSettings;
   features: FeatureItem[];
   contact: ContactSettings;
   courses: Course[];

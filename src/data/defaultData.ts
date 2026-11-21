@@ -1,6 +1,8 @@
 import { InstituteData } from '../types';
 
 export const DEFAULT_HERO_IMAGE = '/src/assets/images/hero_jit_campus_1795242509151.jpg';
+export const DEFAULT_STOREFRONT_IMAGE =
+  '/src/assets/images/jit_campus_storefront_1795272079858.jpg';
 export const ADMIN_ACCESS_ID = '8017462677';
 
 export const PORTAL_LINKS = [
@@ -53,6 +55,50 @@ export const DEFAULT_INSTITUTE_DATA: InstituteData = {
     heroImageUrl: DEFAULT_HERO_IMAGE,
     heroVideoUrl: '',
     mediaCaption: '100% Practical Computer, Digital Marketing & Stock Market Lab',
+  },
+  campusShowcase: {
+    sectionTitle: 'Our Campus & Facilities',
+    storefrontImageUrl: DEFAULT_STOREFRONT_IMAGE,
+    locationBadge: 'Barasat, Kolkata',
+    bentoCards: [
+      {
+        id: 'bento-1',
+        title: 'Live Practical Lab',
+        subtitle: 'Dedicated 1:1 workstations',
+        icon: 'Monitor',
+        imageUrl: '',
+        cardStyle: 'navy-gradient',
+      },
+      {
+        id: 'bento-2',
+        title: 'Computer Courses',
+        subtitle: 'Coding, Tally & MS Office',
+        icon: 'Code2',
+        imageUrl: '',
+        cardStyle: 'white-elevated',
+      },
+      {
+        id: 'bento-3',
+        title: 'Trading & Fin-Lab',
+        subtitle: 'Live NSE/BSE chart sessions',
+        icon: 'TrendingUp',
+        imageUrl: '',
+        cardStyle: 'navy-gradient',
+      },
+      {
+        id: 'bento-4',
+        title: 'Student Facilities',
+        subtitle: 'Guided mentorship & notes',
+        icon: 'Users',
+        imageUrl: '',
+        cardStyle: 'white-elevated',
+      },
+    ],
+    welcomeHeading: 'Welcome to JIT Campus',
+    welcomeDescription:
+      'High-tech learning environment, 100% Practical Computer Training & Live Stock Market Coaching.',
+    ratingText: '4.9/5 Student Rating',
+    ctaLabel: 'Explore Facilities',
   },
   features: [
     {

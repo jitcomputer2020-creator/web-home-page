@@ -42,6 +42,49 @@ export function normalizeData(parsed: Partial<InstituteData>): InstituteData {
       heroVideoUrl: parsed.hero?.heroVideoUrl?.trim() || DEFAULT_INSTITUTE_DATA.hero.heroVideoUrl,
       mediaCaption: parsed.hero?.mediaCaption?.trim() || DEFAULT_INSTITUTE_DATA.hero.mediaCaption,
     },
+    campusShowcase: {
+      sectionTitle:
+        parsed.campusShowcase?.sectionTitle?.trim() ||
+        DEFAULT_INSTITUTE_DATA.campusShowcase.sectionTitle,
+      storefrontImageUrl:
+        parsed.campusShowcase?.storefrontImageUrl?.trim() ||
+        DEFAULT_INSTITUTE_DATA.campusShowcase.storefrontImageUrl,
+      locationBadge:
+        parsed.campusShowcase?.locationBadge?.trim() ||
+        DEFAULT_INSTITUTE_DATA.campusShowcase.locationBadge,
+      bentoCards:
+        Array.isArray(parsed.campusShowcase?.bentoCards) &&
+        parsed.campusShowcase.bentoCards.length > 0
+          ? parsed.campusShowcase.bentoCards.map((card, idx) => ({
+              id: card.id || `bento-${idx + 1}`,
+              title:
+                card.title?.trim() ||
+                DEFAULT_INSTITUTE_DATA.campusShowcase.bentoCards[idx % 4].title,
+              subtitle:
+                card.subtitle?.trim() ??
+                DEFAULT_INSTITUTE_DATA.campusShowcase.bentoCards[idx % 4].subtitle,
+              icon:
+                card.icon || DEFAULT_INSTITUTE_DATA.campusShowcase.bentoCards[idx % 4].icon,
+              imageUrl: card.imageUrl?.trim() || '',
+              cardStyle:
+                card.cardStyle === 'white-elevated' || card.cardStyle === 'navy-gradient'
+                  ? card.cardStyle
+                  : DEFAULT_INSTITUTE_DATA.campusShowcase.bentoCards[idx % 4].cardStyle,
+            }))
+          : DEFAULT_INSTITUTE_DATA.campusShowcase.bentoCards,
+      welcomeHeading:
+        parsed.campusShowcase?.welcomeHeading?.trim() ||
+        DEFAULT_INSTITUTE_DATA.campusShowcase.welcomeHeading,
+      welcomeDescription:
+        parsed.campusShowcase?.welcomeDescription?.trim() ||
+        DEFAULT_INSTITUTE_DATA.campusShowcase.welcomeDescription,
+      ratingText:
+        parsed.campusShowcase?.ratingText?.trim() ||
+        DEFAULT_INSTITUTE_DATA.campusShowcase.ratingText,
+      ctaLabel:
+        parsed.campusShowcase?.ctaLabel?.trim() ||
+        DEFAULT_INSTITUTE_DATA.campusShowcase.ctaLabel,
+    },
     features: Array.isArray(parsed.features) ? parsed.features : DEFAULT_INSTITUTE_DATA.features,
     contact: {
       phone: parsed.contact?.phone?.trim() || DEFAULT_INSTITUTE_DATA.contact.phone,
