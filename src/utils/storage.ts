@@ -50,8 +50,20 @@ export function normalizeData(parsed: Partial<InstituteData>): InstituteData {
         parsed.contact?.phone?.trim() ||
         DEFAULT_INSTITUTE_DATA.contact.whatsappNumber,
       email: parsed.contact?.email?.trim() || DEFAULT_INSTITUTE_DATA.contact.email,
-      address: parsed.contact?.address?.trim() || DEFAULT_INSTITUTE_DATA.contact.address,
-      timings: parsed.contact?.timings?.trim() || DEFAULT_INSTITUTE_DATA.contact.timings,
+      address:
+        !parsed.contact?.address?.trim() ||
+        parsed.contact.address.trim() ===
+          'JIT Computer Training Institute (Jharna Institute of Technology), Main Campus'
+          ? DEFAULT_INSTITUTE_DATA.contact.address
+          : parsed.contact.address.trim(),
+      timings:
+        !parsed.contact?.timings?.trim() ||
+        parsed.contact.timings.trim() === 'Mon–Sat, 8:00 AM – 7:00 PM'
+          ? DEFAULT_INSTITUTE_DATA.contact.timings
+          : parsed.contact.timings.trim(),
+      googleMapsUrl:
+        parsed.contact?.googleMapsUrl?.trim() || DEFAULT_INSTITUTE_DATA.contact.googleMapsUrl,
+      mapQuery: parsed.contact?.mapQuery?.trim() || DEFAULT_INSTITUTE_DATA.contact.mapQuery,
       facebookUrl: parsed.contact?.facebookUrl?.trim() || DEFAULT_INSTITUTE_DATA.contact.facebookUrl,
       instagramUrl:
         parsed.contact?.instagramUrl?.trim() || DEFAULT_INSTITUTE_DATA.contact.instagramUrl,
@@ -123,6 +135,17 @@ export function buildStructuredInquiryMessage(params: {
     `- Course: ${params.course}`,
     `- Message: ${note}`,
   ].join('\n');
+}
+
+export function buildGoogleMapsEmbedUrl(mapQuery: string): string {
+  const trimmed = mapQuery.trim();
+  if (!trimmed) {
+    return 'https://maps.google.com/maps?q=JIT%20Computer%20Training%20Institute,%2083/1%20Dhara%20Para%20Road,%20Tutepara%20Rd,%20Barasat,%20Kolkata,%20West%20Bengal%20700124&t=&z=16&ie=UTF8&iwloc=&output=embed';
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://maps.google.com/maps?q=${encodeURIComponent(trimmed)}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
 }
 
 /**

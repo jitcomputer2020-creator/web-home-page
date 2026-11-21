@@ -16,6 +16,7 @@ import { Footer } from './components/Footer';
 import { GallerySection } from './components/GallerySection';
 import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
+import { LocationMapSection } from './components/LocationMapSection';
 import { NoticeBoardSection } from './components/NoticeBoardSection';
 import { NoticeTicker } from './components/NoticeTicker';
 import { ReviewsSection } from './components/ReviewsSection';
@@ -150,6 +151,8 @@ export default function App() {
           onSubmitEnquiry={handleSubmitEnquiry}
         />
         <CustomSectionsRenderer sections={data.customSections} placement="before-footer" />
+
+        <LocationMapSection branding={data.branding} contact={data.contact} />
       </main>
 
       <Footer

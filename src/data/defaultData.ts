@@ -88,8 +88,12 @@ export const DEFAULT_INSTITUTE_DATA: InstituteData = {
     phone: '8961260151',
     whatsappNumber: '8961260151',
     email: 'jitcomputer2020@gmail.com',
-    address: 'JIT Computer Training Institute (Jharna Institute of Technology), Main Campus',
-    timings: 'Mon–Sat, 8:00 AM – 7:00 PM',
+    address: '83/1 Dhara Para Road, Tutepara Rd, P.O & P.S Barasat, Kolkata, West Bengal 700124',
+    timings:
+      'Mon–Tue, Thu, Sat: 7:00 AM – 9:00 PM | Wed: 7:00 AM – 9:30 PM | Sun: 8:00 AM – 9:00 PM | Fri: Closed',
+    googleMapsUrl: 'https://maps.app.goo.gl/3LEj2zLvazdHkBs67',
+    mapQuery:
+      'JIT Computer Training Institute, 83/1 Dhara Para Road, Tutepara Rd, Barasat, Kolkata, West Bengal 700124',
     facebookUrl: 'https://www.facebook.com/',
     instagramUrl: 'https://www.instagram.com/',
     youtubeUrl: 'https://www.youtube.com/',

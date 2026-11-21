@@ -170,6 +170,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [contactEmail, setContactEmail] = useState(data.contact.email);
   const [contactAddress, setContactAddress] = useState(data.contact.address);
   const [contactTimings, setContactTimings] = useState(data.contact.timings);
+  const [googleMapsUrl, setGoogleMapsUrl] = useState(data.contact.googleMapsUrl);
+  const [mapQuery, setMapQuery] = useState(data.contact.mapQuery);
   const [facebookUrl, setFacebookUrl] = useState(data.contact.facebookUrl);
   const [instagramUrl, setInstagramUrl] = useState(data.contact.instagramUrl);
   const [youtubeUrl, setYoutubeUrl] = useState(data.contact.youtubeUrl);
@@ -198,6 +200,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setContactEmail(data.contact.email);
     setContactAddress(data.contact.address);
     setContactTimings(data.contact.timings);
+    setGoogleMapsUrl(data.contact.googleMapsUrl);
+    setMapQuery(data.contact.mapQuery);
     setFacebookUrl(data.contact.facebookUrl);
     setInstagramUrl(data.contact.instagramUrl);
     setYoutubeUrl(data.contact.youtubeUrl);
@@ -718,12 +722,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         email: contactEmail.trim() || prev.contact.email,
         address: contactAddress.trim() || prev.contact.address,
         timings: contactTimings.trim() || prev.contact.timings,
+        googleMapsUrl: googleMapsUrl.trim() || prev.contact.googleMapsUrl,
+        mapQuery: mapQuery.trim() || prev.contact.mapQuery,
         facebookUrl: facebookUrl.trim(),
         instagramUrl: instagramUrl.trim(),
         youtubeUrl: youtubeUrl.trim(),
       },
     }));
-    showToast('Contact & WhatsApp target settings updated.');
+    showToast('Contact, location & WhatsApp settings updated.');
   };
 
   const handleAddCertificate = (e: React.FormEvent) => {
@@ -2151,7 +2157,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 className="rounded-xl border border-slate-200 bg-slate-50/50 p-5 space-y-4"
               >
                 <h3 className="font-display font-bold text-lg text-[#0A2463]">
-                  Contact &amp; Social Media Links
+                  Contact, Location &amp; Social Media Settings
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2196,14 +2202,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Timings
+                      Opening Hours (separate entries with &ldquo;|&rdquo;)
                     </label>
                     <input
                       type="text"
                       required
                       value={contactTimings}
                       onChange={(e) => setContactTimings(e.target.value)}
-                      placeholder="Timings"
+                      placeholder="Mon–Tue, Thu, Sat: 7:00 AM – 9:00 PM | Wed: ..."
                       className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
                     />
                   </div>
@@ -2216,7 +2222,33 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       required
                       value={contactAddress}
                       onChange={(e) => setContactAddress(e.target.value)}
-                      placeholder="Institute Address"
+                      placeholder="83/1 Dhara Para Road, Tutepara Rd, P.O & P.S Barasat, Kolkata, West Bengal 700124"
+                      className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Google Maps Direct Link (Directions Button &amp; Footer)
+                    </label>
+                    <input
+                      type="url"
+                      required
+                      value={googleMapsUrl}
+                      onChange={(e) => setGoogleMapsUrl(e.target.value)}
+                      placeholder="https://maps.app.goo.gl/3LEj2zLvazdHkBs67"
+                      className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Map Embed Query (or full Google Maps Embed URL)
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={mapQuery}
+                      onChange={(e) => setMapQuery(e.target.value)}
+                      placeholder="JIT Computer Training Institute, 83/1 Dhara Para Road, ..."
                       className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
                     />
                   </div>
@@ -2250,7 +2282,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   type="submit"
                   className="min-h-[42px] px-5 py-2 rounded-lg bg-[#F59E0B] hover:bg-amber-400 text-slate-950 font-bold text-sm cursor-pointer"
                 >
-                  Save Contact &amp; WhatsApp Settings
+                  Save Contact, Location &amp; WhatsApp Settings
                 </button>
               </form>
 

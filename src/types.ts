@@ -43,6 +43,8 @@ export interface ContactSettings {
   email: string;
   address: string;
   timings: string;
+  googleMapsUrl: string;
+  mapQuery: string;
   facebookUrl: string;
   instagramUrl: string;
   youtubeUrl: string;

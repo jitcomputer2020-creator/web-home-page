@@ -267,7 +267,14 @@ export const VerifyAndAdmissionSection: React.FC<VerifyAndAdmissionSectionProps>
                 </li>
                 <li className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 text-[#1E40AF] shrink-0 mt-0.5" aria-hidden="true" />
-                  <span>{contact.address}</span>
+                  <a
+                    href={contact.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-[#0A2463] hover:underline underline-offset-2"
+                  >
+                    {contact.address}
+                  </a>
                 </li>
                 <li className="flex items-start gap-3">
                   <Clock className="w-4 h-4 text-[#1E40AF] shrink-0 mt-0.5" aria-hidden="true" />

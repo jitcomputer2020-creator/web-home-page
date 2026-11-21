@@ -108,6 +108,11 @@ export const Footer: React.FC<FooterProps> = ({
                   Certificate Verification
                 </a>
               </li>
+              <li>
+                <a href="#location" className="text-blue-100 hover:text-white transition-colors">
+                  Location &amp; Hours
+                </a>
+              </li>
               {PORTAL_LINKS.map((portal) => (
                 <li key={portal.id}>
                   <a
@@ -149,7 +154,14 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" aria-hidden="true" />
-                <span className="text-blue-100">{contact.address}</span>
+                <a
+                  href={contact.googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-100 hover:text-amber-300 underline-offset-4 hover:underline transition-colors"
+                >
+                  {contact.address}
+                </a>
               </li>
               <li className="flex items-start gap-2.5">
                 <Clock className="w-4 h-4 text-[#F59E0B] shrink-0 mt-0.5" aria-hidden="true" />
