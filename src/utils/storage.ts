@@ -1,7 +1,7 @@
 import { DEFAULT_INSTITUTE_DATA } from '../data/defaultData';
 import { InstituteData } from '../types';
 
-const STORAGE_KEY = 'jit_institute_data_v4';
+const STORAGE_KEY = 'jit_home_data_v2';
 
 export function loadInstituteData(): InstituteData {
   try {

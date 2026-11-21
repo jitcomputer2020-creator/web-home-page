@@ -174,8 +174,8 @@ export const CampusShowcaseSection: React.FC<CampusShowcaseSectionProps> = ({
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Heading */}
-        <div className="max-w-3xl mb-10 lg:mb-12">
+        {/* Centered Section Heading */}
+        <div className="text-center max-w-3xl mx-auto mb-10 lg:mb-12">
           <p className="text-xs sm:text-sm font-semibold text-amber-700 mb-1.5">
             Practical Infrastructure &amp; Learning Environment
           </p>
@@ -188,7 +188,7 @@ export const CampusShowcaseSection: React.FC<CampusShowcaseSectionProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-8 items-stretch">
           {/* LEFT COLUMN: Large Featured Campus Card with Glowing Royal-Blue Frame */}
           <div className="lg:col-span-4 flex">
-            <div className="group relative w-full rounded-2xl bg-white p-2 border-2 border-[#1E40AF]/65 shadow-[0_20px_48px_-14px_rgba(30,64,175,0.42),0_0_24px_rgba(30,64,175,0.20)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_28px_58px_-14px_rgba(10,36,99,0.52),0_0_32px_rgba(30,64,175,0.32)]">
+            <div className="group relative w-full rounded-2xl bg-white p-2 border-2 border-blue-500 shadow-xl shadow-blue-500/30 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-600/40">
               <div className="relative w-full h-full min-h-[340px] sm:min-h-[410px] rounded-xl overflow-hidden bg-slate-900">
                 <img
                   src={storefrontSrc}
