@@ -6,16 +6,20 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { AdminPanel } from './components/AdminPanel';
+import { CourseModal } from './components/CourseModal';
 import { CoursesSection } from './components/CoursesSection';
-import { FloatingWhatsApp } from './components/FloatingWhatsApp';
+import { DemoBookingModal } from './components/DemoBookingModal';
+import { FloatingActions } from './components/FloatingActions';
 import { Footer } from './components/Footer';
 import { GallerySection } from './components/GallerySection';
 import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
+import { NoticeBoardSection } from './components/NoticeBoardSection';
 import { NoticeTicker } from './components/NoticeTicker';
 import { ReviewsSection } from './components/ReviewsSection';
 import { VerifyAndAdmissionSection } from './components/VerifyAndAdmissionSection';
-import { AdmissionEnquiry, InstituteData } from './types';
+import { WhyChooseSection } from './components/WhyChooseSection';
+import { AdmissionEnquiry, Course, InstituteData } from './types';
 import {
   loadInstituteData,
   resetInstituteData,
@@ -24,8 +28,10 @@ import {
 
 export default function App() {
   const [data, setData] = useState<InstituteData>(() => loadInstituteData());
-  const [selectedCourseForEnquiry, setSelectedCourseForEnquiry] = useState<string>('');
+  const [activeCourseModal, setActiveCourseModal] = useState<Course | null>(null);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminPanelOpen, setAdminPanelOpen] = useState(false);
 
   useEffect(() => {
@@ -34,14 +40,6 @@ export default function App() {
 
   const updateData = useCallback((updater: (prev: InstituteData) => InstituteData) => {
     setData((prev) => updater(prev));
-  }, []);
-
-  const handleEnquireCourse = useCallback((courseTitle: string) => {
-    setSelectedCourseForEnquiry(courseTitle);
-    const admissionsEl = document.getElementById('admissions');
-    if (admissionsEl) {
-      admissionsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   }, []);
 
   const handleSubmitEnquiry = useCallback(
@@ -66,32 +64,75 @@ export default function App() {
     setData(fresh);
   }, []);
 
+  const handleSecretAdminTrigger = useCallback(() => {
+    if (isAdminLoggedIn) {
+      setAdminPanelOpen(true);
+    } else {
+      setLoginModalOpen(true);
+    }
+  }, [isAdminLoggedIn]);
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900">
-      <Header onSecretAdminTrigger={() => setLoginModalOpen(true)} />
+      <Header
+        onSecretAdminTrigger={handleSecretAdminTrigger}
+        onOpenDemoModal={() => setDemoModalOpen(true)}
+      />
       <NoticeTicker notices={data.notices} />
 
       <main className="flex-1">
-        <HeroSection heroImageUrl={data.heroImageUrl} />
-        <CoursesSection courses={data.courses} onEnquireCourse={handleEnquireCourse} />
+        <HeroSection
+          hero={data.hero}
+          onOpenDemoModal={() => setDemoModalOpen(true)}
+        />
+        <WhyChooseSection />
+        <CoursesSection
+          courses={data.courses}
+          onSelectCourseModal={(course) => setActiveCourseModal(course)}
+        />
+        <NoticeBoardSection notices={data.notices} />
         <GallerySection gallery={data.gallery} />
         <ReviewsSection reviews={data.reviews} />
         <VerifyAndAdmissionSection
           certificates={data.certificates}
           courses={data.courses}
-          selectedCourseForEnquiry={selectedCourseForEnquiry}
+          contact={data.contact}
           onSubmitEnquiry={handleSubmitEnquiry}
         />
       </main>
 
-      <Footer />
-      <FloatingWhatsApp />
+      <Footer
+        contact={data.contact}
+        onSecretAdminTrigger={handleSecretAdminTrigger}
+      />
+
+      <FloatingActions
+        contactPhone={data.contact.phone}
+        isAdminLoggedIn={isAdminLoggedIn}
+        onOpenAdminPanel={() => setAdminPanelOpen(true)}
+      />
+
+      <CourseModal
+        course={activeCourseModal}
+        contactPhone={data.contact.phone}
+        onClose={() => setActiveCourseModal(null)}
+        onSubmitEnquiry={handleSubmitEnquiry}
+      />
+
+      <DemoBookingModal
+        isOpen={demoModalOpen}
+        courses={data.courses}
+        contactPhone={data.contact.phone}
+        onClose={() => setDemoModalOpen(false)}
+        onSubmitEnquiry={handleSubmitEnquiry}
+      />
 
       <AdminLoginModal
         isOpen={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
         onAuthenticated={() => {
           setLoginModalOpen(false);
+          setIsAdminLoggedIn(true);
           setAdminPanelOpen(true);
         }}
       />
@@ -100,8 +141,13 @@ export default function App() {
         isOpen={adminPanelOpen}
         data={data}
         onUpdateData={updateData}
+        onImportData={(imported) => setData(imported)}
         onResetDefaults={handleResetDefaults}
         onClose={() => setAdminPanelOpen(false)}
+        onLogout={() => {
+          setAdminPanelOpen(false);
+          setIsAdminLoggedIn(false);
+        }}
       />
     </div>
   );

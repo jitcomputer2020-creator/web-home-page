@@ -4,22 +4,26 @@ import { JitLogo } from './JitLogo';
 
 interface HeaderProps {
   onSecretAdminTrigger: () => void;
+  onOpenDemoModal: () => void;
 }
 
 const NAV_LINKS = [
   { label: 'Courses', href: '#courses' },
+  { label: 'Notices', href: '#notices' },
   { label: 'Gallery', href: '#gallery' },
   { label: 'Reviews', href: '#reviews' },
-  { label: 'Verify', href: '#verify' },
-  { label: 'Admissions', href: '#admissions' },
+  { label: 'Contact', href: '#contact' },
 ] as const;
 
-export const Header: React.FC<HeaderProps> = ({ onSecretAdminTrigger }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onSecretAdminTrigger,
+  onOpenDemoModal,
+}) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const clickCountRef = useRef(0);
   const resetTimerRef = useRef<number | null>(null);
 
-  const handleBrandClick = () => {
+  const handleLogoClick = () => {
     if (resetTimerRef.current !== null) {
       window.clearTimeout(resetTimerRef.current);
     }
@@ -38,18 +42,18 @@ export const Header: React.FC<HeaderProps> = ({ onSecretAdminTrigger }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4 lg:gap-8">
-        {/* Zone 1: Brand Title + Logo (5-click secret admin activation) */}
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[70px] flex items-center justify-between gap-4 lg:gap-8">
+        {/* Zone 1: JIT Logo + Institute Name (5-click secret admin trigger) */}
         <button
           type="button"
-          onClick={handleBrandClick}
-          className="flex items-center gap-3 text-left min-w-0 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-800 rounded-lg py-1 pr-2 cursor-pointer select-none"
-          title="Jharna Institute of Technology (JIT)"
+          onClick={handleLogoClick}
+          className="flex items-center gap-2.5 sm:gap-3 text-left min-w-0 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 rounded-lg py-1 pr-2 cursor-pointer select-none"
+          title="JIT Computer Training Institute"
         >
-          <JitLogo className="w-9 h-9 shrink-0" />
-          <span className="font-display font-bold text-sm sm:text-base lg:text-lg tracking-tight text-blue-950 whitespace-nowrap truncate max-w-[215px] sm:max-w-none">
-            JHARNA INSTITUTE OF TECHNOLOGY (JIT)
+          <JitLogo className="w-10 h-10 sm:w-11 sm:h-11 shrink-0" />
+          <span className="font-display font-extrabold text-sm sm:text-base lg:text-lg tracking-tight text-[#0A2463] whitespace-nowrap truncate max-w-[205px] sm:max-w-none">
+            JIT Computer Training Institute
           </span>
         </button>
 
@@ -62,26 +66,27 @@ export const Header: React.FC<HeaderProps> = ({ onSecretAdminTrigger }) => {
             <a
               key={link.href}
               href={link.href}
-              className="whitespace-nowrap shrink-0 py-1 border-b-2 border-transparent hover:border-amber-600 hover:text-blue-900 transition-colors duration-150"
+              className="whitespace-nowrap shrink-0 py-1 border-b-2 border-transparent hover:border-amber-500 hover:text-[#0A2463] transition-colors duration-150"
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        {/* Zone 3: Single Primary Action + Mobile Menu Toggle */}
+        {/* Zone 3: Golden-amber primary CTA + mobile drawer button */}
         <div className="flex items-center gap-3 shrink-0">
-          <a
-            href="#admissions"
-            className="hidden sm:inline-flex items-center justify-center px-5 py-2 text-sm font-semibold text-white bg-blue-900 hover:bg-blue-800 rounded-lg transition-colors duration-150 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:ring-offset-2"
+          <button
+            type="button"
+            onClick={onOpenDemoModal}
+            className="hidden sm:inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold text-slate-950 bg-[#F59E0B] hover:bg-amber-400 rounded-lg transition-colors duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2463] focus-visible:ring-offset-2"
           >
-            Apply Now
-          </a>
+            Book a Free Demo
+          </button>
 
           <button
             type="button"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-900"
+            className="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2463]"
             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileMenuOpen}
           >
@@ -98,19 +103,22 @@ export const Header: React.FC<HeaderProps> = ({ onSecretAdminTrigger }) => {
               key={link.href}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center min-h-[44px] px-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition-colors"
+              className="flex items-center min-h-[44px] px-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-[#0A2463] transition-colors"
             >
               {link.label}
             </a>
           ))}
           <div className="pt-2 pb-1 sm:hidden">
-            <a
-              href="#admissions"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center min-h-[44px] w-full rounded-lg bg-blue-900 text-white text-sm font-semibold hover:bg-blue-800 transition-colors"
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenDemoModal();
+              }}
+              className="flex items-center justify-center min-h-[44px] w-full rounded-lg bg-[#F59E0B] hover:bg-amber-400 text-slate-950 text-sm font-bold transition-colors cursor-pointer"
             >
-              Apply Now
-            </a>
+              Book a Free Demo
+            </button>
           </div>
         </div>
       )}

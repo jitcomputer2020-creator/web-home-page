@@ -1,45 +1,28 @@
-import { DEFAULT_INSTITUTE_DATA, WHATSAPP_NUMBER } from '../data/defaultData';
+import { DEFAULT_INSTITUTE_DATA } from '../data/defaultData';
 import { InstituteData } from '../types';
 
-const STORAGE_KEY = 'jit_institute_data_v2';
-const LEGACY_STORAGE_KEY = 'jit_institute_data_v1';
+const STORAGE_KEY = 'jit_institute_data_v3';
 
 export function loadInstituteData(): InstituteData {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      // Carry forward any custom hero photo, gallery uploads, or enquiries from v1
-      const legacyRaw = window.localStorage.getItem(LEGACY_STORAGE_KEY);
-      if (legacyRaw) {
-        try {
-          const legacy = JSON.parse(legacyRaw) as Partial<InstituteData>;
-          const migrated: InstituteData = {
-            ...DEFAULT_INSTITUTE_DATA,
-            heroImageUrl:
-              typeof legacy.heroImageUrl === 'string' && legacy.heroImageUrl.trim()
-                ? legacy.heroImageUrl
-                : DEFAULT_INSTITUTE_DATA.heroImageUrl,
-            gallery:
-              Array.isArray(legacy.gallery) && legacy.gallery.length > 0
-                ? legacy.gallery
-                : DEFAULT_INSTITUTE_DATA.gallery,
-            enquiries: Array.isArray(legacy.enquiries) ? legacy.enquiries : [],
-          };
-          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
-          return migrated;
-        } catch {
-          return DEFAULT_INSTITUTE_DATA;
-        }
-      }
       return DEFAULT_INSTITUTE_DATA;
     }
-
     const parsed = JSON.parse(raw) as Partial<InstituteData>;
     return {
-      heroImageUrl:
-        typeof parsed.heroImageUrl === 'string' && parsed.heroImageUrl.trim()
-          ? parsed.heroImageUrl
-          : DEFAULT_INSTITUTE_DATA.heroImageUrl,
+      hero: {
+        headline: parsed.hero?.headline?.trim() || DEFAULT_INSTITUTE_DATA.hero.headline,
+        subheadline: parsed.hero?.subheadline?.trim() || DEFAULT_INSTITUTE_DATA.hero.subheadline,
+        heroImageUrl:
+          parsed.hero?.heroImageUrl?.trim() || DEFAULT_INSTITUTE_DATA.hero.heroImageUrl,
+      },
+      contact: {
+        phone: parsed.contact?.phone?.trim() || DEFAULT_INSTITUTE_DATA.contact.phone,
+        email: parsed.contact?.email?.trim() || DEFAULT_INSTITUTE_DATA.contact.email,
+        address: parsed.contact?.address?.trim() || DEFAULT_INSTITUTE_DATA.contact.address,
+        timings: parsed.contact?.timings?.trim() || DEFAULT_INSTITUTE_DATA.contact.timings,
+      },
       courses: Array.isArray(parsed.courses) ? parsed.courses : DEFAULT_INSTITUTE_DATA.courses,
       gallery: Array.isArray(parsed.gallery) ? parsed.gallery : DEFAULT_INSTITUTE_DATA.gallery,
       reviews: Array.isArray(parsed.reviews) ? parsed.reviews : DEFAULT_INSTITUTE_DATA.reviews,
@@ -66,21 +49,23 @@ export function saveInstituteData(data: InstituteData): boolean {
 export function resetInstituteData(): InstituteData {
   try {
     window.localStorage.removeItem(STORAGE_KEY);
-    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch {
     // Ignore storage removal errors
   }
   return DEFAULT_INSTITUTE_DATA;
 }
 
-export function buildWhatsAppUrl(message: string): string {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+export function formatPhoneForWhatsApp(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 10) return `91${digits}`;
+  return digits || '918961260151';
 }
 
-/**
- * Compresses an uploaded image file to a clean JPEG Data URL so it stores reliably
- * inside localStorage without exceeding typical 5MB quota limits.
- */
+export function buildWhatsAppUrl(message: string, phone = '8961260151'): string {
+  const waNumber = formatPhoneForWhatsApp(phone);
+  return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
+}
+
 export function compressImageFile(file: File, maxWidth = 1280, quality = 0.82): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -116,4 +101,36 @@ export function compressImageFile(file: File, maxWidth = 1280, quality = 0.82): 
     };
     reader.readAsDataURL(file);
   });
+}
+
+export function validateImportedData(rawJson: string): InstituteData | null {
+  try {
+    const parsed = JSON.parse(rawJson) as Partial<InstituteData>;
+    if (!parsed || typeof parsed !== 'object') return null;
+
+    return {
+      hero: {
+        headline: parsed.hero?.headline?.trim() || DEFAULT_INSTITUTE_DATA.hero.headline,
+        subheadline: parsed.hero?.subheadline?.trim() || DEFAULT_INSTITUTE_DATA.hero.subheadline,
+        heroImageUrl:
+          parsed.hero?.heroImageUrl?.trim() || DEFAULT_INSTITUTE_DATA.hero.heroImageUrl,
+      },
+      contact: {
+        phone: parsed.contact?.phone?.trim() || DEFAULT_INSTITUTE_DATA.contact.phone,
+        email: parsed.contact?.email?.trim() || DEFAULT_INSTITUTE_DATA.contact.email,
+        address: parsed.contact?.address?.trim() || DEFAULT_INSTITUTE_DATA.contact.address,
+        timings: parsed.contact?.timings?.trim() || DEFAULT_INSTITUTE_DATA.contact.timings,
+      },
+      courses: Array.isArray(parsed.courses) ? parsed.courses : DEFAULT_INSTITUTE_DATA.courses,
+      gallery: Array.isArray(parsed.gallery) ? parsed.gallery : DEFAULT_INSTITUTE_DATA.gallery,
+      reviews: Array.isArray(parsed.reviews) ? parsed.reviews : DEFAULT_INSTITUTE_DATA.reviews,
+      notices: Array.isArray(parsed.notices) ? parsed.notices : DEFAULT_INSTITUTE_DATA.notices,
+      certificates: Array.isArray(parsed.certificates)
+        ? parsed.certificates
+        : DEFAULT_INSTITUTE_DATA.certificates,
+      enquiries: Array.isArray(parsed.enquiries) ? parsed.enquiries : [],
+    };
+  } catch {
+    return null;
+  }
 }

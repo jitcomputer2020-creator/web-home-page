@@ -1,16 +1,26 @@
-export type CourseCategory =
-  | 'Basic and Advance'
-  | 'Digital Marketing'
-  | 'Share Market';
+export type NoticeBadge = 'New' | 'Exam' | 'Batch' | 'Holiday';
+
+export interface HeroSettings {
+  headline: string;
+  subheadline: string;
+  heroImageUrl: string;
+}
+
+export interface ContactSettings {
+  phone: string;
+  email: string;
+  address: string;
+  timings: string;
+}
 
 export interface Course {
   id: string;
   title: string;
-  category: CourseCategory;
+  category: string;
   duration: string;
-  modules: string[];
+  fee: string;
   summary: string;
-  footerNote?: string;
+  modules: string[];
 }
 
 export type GalleryCategory = 'Classroom' | 'Events' | 'Students';
@@ -26,7 +36,7 @@ export interface GalleryItem {
 export interface GoogleReview {
   id: string;
   reviewerName: string;
-  rating: number; // 1 to 5
+  rating: number;
   courseTaken: string;
   reviewText: string;
   dateLabel: string;
@@ -34,12 +44,14 @@ export interface GoogleReview {
 
 export interface NoticeItem {
   id: string;
-  text: string;
+  title: string;
+  date: string;
+  badge: NoticeBadge;
   active: boolean;
 }
 
 export interface CertificateRecord {
-  id: string; // e.g. JIT-2026-0101
+  id: string;
   studentName: string;
   course: string;
   grade: string;
@@ -54,12 +66,14 @@ export interface AdmissionEnquiry {
   mobile: string;
   course: string;
   preferredTiming: string;
+  type: 'Demo' | 'Enroll';
   submittedAt: string;
   status: EnquiryStatus;
 }
 
 export interface InstituteData {
-  heroImageUrl: string;
+  hero: HeroSettings;
+  contact: ContactSettings;
   courses: Course[];
   gallery: GalleryItem[];
   reviews: GoogleReview[];
