@@ -26,7 +26,7 @@ interface VerifyAndAdmissionSectionProps {
   contact: ContactSettings;
   onSubmitEnquiry: (
     enquiry: Omit<AdmissionEnquiry, 'id' | 'submittedAt' | 'status'>
-  ) => AdmissionEnquiry;
+  ) => { record: AdmissionEnquiry; waUrl: string };
 }
 
 export const VerifyAndAdmissionSection: React.FC<VerifyAndAdmissionSectionProps> = ({
@@ -43,8 +43,12 @@ export const VerifyAndAdmissionSection: React.FC<VerifyAndAdmissionSectionProps>
   const [mobile, setMobile] = useState('');
   const [course, setCourse] = useState(courses[0]?.title ?? '');
   const [preferredTiming, setPreferredTiming] = useState<string>(PREFERRED_TIMINGS[0]);
+  const [message, setMessage] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
-  const [submittedRecord, setSubmittedRecord] = useState<AdmissionEnquiry | null>(null);
+  const [submittedInfo, setSubmittedInfo] = useState<{
+    record: AdmissionEnquiry;
+    waUrl: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!course && courses.length > 0) {
@@ -77,7 +81,7 @@ export const VerifyAndAdmissionSection: React.FC<VerifyAndAdmissionSectionProps>
     const digitsOnly = mobile.replace(/\D/g, '');
 
     if (trimmedName.length < 2) {
-      setFormError('Please enter the student full name.');
+      setFormError('Please enter your full name.');
       return;
     }
     if (digitsOnly.length < 10 || digitsOnly.length > 12) {
@@ -89,28 +93,27 @@ export const VerifyAndAdmissionSection: React.FC<VerifyAndAdmissionSectionProps>
       return;
     }
 
-    const saved = onSubmitEnquiry({
+    const trimmedNotes = message.trim();
+    const combinedMessage = trimmedNotes
+      ? `${trimmedNotes} (Preferred Timing: ${preferredTiming})`
+      : `Admission Enquiry — Preferred Timing: ${preferredTiming}`;
+
+    const result = onSubmitEnquiry({
       name: trimmedName,
       mobile: digitsOnly.slice(-10),
       course,
       preferredTiming,
+      message: combinedMessage,
       type: 'Enroll',
     });
 
-    setSubmittedRecord(saved);
+    setSubmittedInfo(result);
     setName('');
     setMobile('');
+    setCourse(courses[0]?.title ?? '');
+    setPreferredTiming(PREFERRED_TIMINGS[0]);
+    setMessage('');
   };
-
-  const whatsAppAdmissionHref = submittedRecord
-    ? buildWhatsAppUrl(
-        `Hello JIT Computer Training Institute, I have submitted an Admission Enquiry:\n• Name: ${submittedRecord.name}\n• Mobile: ${submittedRecord.mobile}\n• Course: ${submittedRecord.course}\n• Preferred Timing: ${submittedRecord.preferredTiming}`,
-        contact.phone
-      )
-    : buildWhatsAppUrl(
-        'Hello JIT Computer Training Institute, I would like admission information.',
-        contact.phone
-      );
 
   return (
     <section
@@ -274,164 +277,168 @@ export const VerifyAndAdmissionSection: React.FC<VerifyAndAdmissionSectionProps>
             </div>
           </div>
 
-          {/* Right Column: Online Admission Enquiry Form */}
+          {/* Right Column: Online Admission & Contact Inquiry Form */}
           <div
             id="admissions"
             className="lg:col-span-7 rounded-xl border border-slate-200 bg-white p-6 sm:p-8 scroll-mt-20"
           >
             <div className="mb-6">
               <p className="text-xs sm:text-sm font-semibold text-amber-700 mb-1">
-                Direct Enrollment Desk
+                Direct Enrollment &amp; Contact Desk
               </p>
               <h2 className="font-display font-bold text-xl sm:text-2xl text-[#0A2463] tracking-tight">
                 Online Admission &amp; Fee Enquiry
               </h2>
               <p className="text-sm text-slate-600 mt-1.5">
-                Submit your details to reserve a batch seat or request complete fee details via WhatsApp.
+                Fill out your details below and click Submit to send your inquiry directly to JIT on WhatsApp.
               </p>
             </div>
 
-            {submittedRecord ? (
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-6">
-                <div className="flex items-start gap-3 mb-4">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-700 shrink-0 mt-0.5" aria-hidden="true" />
+            {submittedInfo && (
+              <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50/80 p-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" aria-hidden="true" />
                   <div>
-                    <h3 className="font-display font-bold text-lg text-[#0A2463]">
-                      Enquiry Saved Successfully
+                    <h3 className="font-display font-bold text-sm text-[#0A2463]">
+                      Redirecting to JIT WhatsApp...
                     </h3>
-                    <p className="text-sm text-slate-700 mt-1">
-                      Thank you, <strong>{submittedRecord.name}</strong>. Your enquiry for{' '}
-                      <strong>{submittedRecord.course}</strong> ({submittedRecord.preferredTiming}) has been logged with our admissions desk.
+                    <p className="text-xs text-slate-700 mt-0.5">
+                      Inquiry for <strong>{submittedInfo.record.course}</strong> logged for{' '}
+                      <strong>{submittedInfo.record.name}</strong>.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 pt-2">
-                  <a
-                    href={whatsAppAdmissionHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors"
-                  >
-                    <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                    <span>Send 1-Click WhatsApp ({contact.phone})</span>
-                  </a>
+                <a
+                  href={submittedInfo.waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 min-h-[38px] px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>Open WhatsApp ({contact.whatsappNumber})</span>
+                </a>
+              </div>
+            )}
 
-                  <button
-                    type="button"
-                    onClick={() => setSubmittedRecord(null)}
-                    className="inline-flex items-center justify-center min-h-[44px] px-4 py-2.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition-colors cursor-pointer"
-                  >
-                    Submit Another Enquiry
-                  </button>
+            <form onSubmit={handleAdmissionSubmit} className="space-y-4">
+              {formError && (
+                <div
+                  role="alert"
+                  className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-800"
+                >
+                  <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  <span>{formError}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="admission-name" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Name
+                  </label>
+                  <input
+                    id="admission-name"
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your full name"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0A2463]"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="admission-mobile" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Phone Number
+                  </label>
+                  <input
+                    id="admission-mobile"
+                    type="tel"
+                    required
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value)}
+                    placeholder="10-digit mobile / WhatsApp number"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-mono tabular-nums text-slate-900 placeholder:font-sans placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0A2463]"
+                  />
                 </div>
               </div>
-            ) : (
-              <form onSubmit={handleAdmissionSubmit} className="space-y-4">
-                {formError && (
-                  <div
-                    role="alert"
-                    className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-800"
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="admission-course" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Course Interested
+                  </label>
+                  <select
+                    id="admission-course"
+                    value={course}
+                    onChange={(e) => setCourse(e.target.value)}
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A2463]"
                   >
-                    <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
-                    <span>{formError}</span>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="admission-name" className="block text-xs font-semibold text-slate-700 mb-1.5">
-                      Student Full Name
-                    </label>
-                    <input
-                      id="admission-name"
-                      type="text"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Enter your full name"
-                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0A2463]"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="admission-mobile" className="block text-xs font-semibold text-slate-700 mb-1.5">
-                      Mobile / WhatsApp Number
-                    </label>
-                    <input
-                      id="admission-mobile"
-                      type="tel"
-                      required
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
-                      placeholder="10-digit mobile number"
-                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-mono tabular-nums text-slate-900 placeholder:font-sans placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0A2463]"
-                    />
-                  </div>
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.title}>
+                        {c.title}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="admission-course" className="block text-xs font-semibold text-slate-700 mb-1.5">
-                      Select Program
-                    </label>
-                    <select
-                      id="admission-course"
-                      value={course}
-                      onChange={(e) => setCourse(e.target.value)}
-                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A2463]"
-                    >
-                      {courses.map((c) => (
-                        <option key={c.id} value={c.title}>
-                          {c.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="admission-timing" className="block text-xs font-semibold text-slate-700 mb-1.5">
-                      Preferred Batch Timing
-                    </label>
-                    <select
-                      id="admission-timing"
-                      value={preferredTiming}
-                      onChange={(e) => setPreferredTiming(e.target.value)}
-                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A2463]"
-                    >
-                      {PREFERRED_TIMINGS.map((slot) => (
-                        <option key={slot} value={slot}>
-                          {slot}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="pt-2 flex flex-wrap items-center gap-3">
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center gap-2 min-h-[44px] px-6 py-2.5 rounded-lg bg-[#0A2463] hover:bg-[#1E40AF] text-white text-sm font-semibold transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2463] focus-visible:ring-offset-2"
+                <div>
+                  <label htmlFor="admission-timing" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Preferred Batch Timing
+                  </label>
+                  <select
+                    id="admission-timing"
+                    value={preferredTiming}
+                    onChange={(e) => setPreferredTiming(e.target.value)}
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A2463]"
                   >
-                    <Send className="w-4 h-4" aria-hidden="true" />
-                    <span>Submit Admission Enquiry</span>
-                  </button>
-
-                  <a
-                    href={buildWhatsAppUrl(
-                      `Hello JIT Computer Training Institute, I would like admission and fee details for ${course || 'a program'} (${preferredTiming}).`,
-                      contact.phone
-                    )}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg border border-emerald-600 text-emerald-700 hover:bg-emerald-50 text-sm font-semibold transition-colors whitespace-nowrap"
-                  >
-                    <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                    <span>Chat on WhatsApp</span>
-                  </a>
+                    {PREFERRED_TIMINGS.map((slot) => (
+                      <option key={slot} value={slot}>
+                        {slot}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </form>
-            )}
+              </div>
+
+              <div>
+                <label htmlFor="admission-message" className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Message / Notes
+                </label>
+                <textarea
+                  id="admission-message"
+                  rows={3}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Write any questions about fees, syllabus, batch schedules, or career guidance..."
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0A2463]"
+                />
+              </div>
+
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-6 py-2.5 rounded-lg bg-[#0A2463] hover:bg-[#1E40AF] text-white text-sm font-semibold transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2463] focus-visible:ring-offset-2"
+                >
+                  <Send className="w-4 h-4" aria-hidden="true" />
+                  <span>Submit</span>
+                </button>
+
+                <a
+                  href={buildWhatsAppUrl(
+                    `Hello JIT Computer Training Institute, I would like to inquire/apply:\n- Name: Student\n- Phone: Not provided\n- Course: ${course || 'General Program'}\n- Message: Looking for fee & batch details (${preferredTiming}).`,
+                    contact.whatsappNumber
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg border border-emerald-600 text-emerald-700 hover:bg-emerald-50 text-sm font-semibold transition-colors whitespace-nowrap"
+                >
+                  <MessageCircle className="w-4 h-4" aria-hidden="true" />
+                  <span>Chat on WhatsApp</span>
+                </a>
+              </div>
+            </form>
           </div>
         </div>
       </div>

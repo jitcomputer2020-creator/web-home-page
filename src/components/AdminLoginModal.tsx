@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AlertCircle, Lock, X } from 'lucide-react';
-import { ADMIN_ACCESS_PIN } from '../data/defaultData';
+import { ADMIN_ACCESS_ID } from '../data/defaultData';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
@@ -13,12 +13,12 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   onClose,
   onAuthenticated,
 }) => {
-  const [pin, setPin] = useState('');
+  const [adminId, setAdminId] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
-    setPin('');
+    setAdminId('');
     setError(null);
 
     const handleEsc = (e: KeyboardEvent) => {
@@ -32,11 +32,11 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pin.trim() === ADMIN_ACCESS_PIN) {
+    if (adminId === ADMIN_ACCESS_ID) {
       setError(null);
       onAuthenticated();
     } else {
-      setError('Invalid Admin PIN. Please verify and try again.');
+      setError('Invalid Admin ID');
     }
   };
 
@@ -59,10 +59,10 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
             </div>
             <div>
               <h2 id="admin-login-title" className="font-display font-bold text-lg text-[#0A2463]">
-                JIT Admin CMS Access
+                Admin Login
               </h2>
               <p className="text-xs text-slate-500">
-                Enter your Admin PIN to unlock Live Edit Mode
+                Enter your authorized Admin ID to unlock CMS controls
               </p>
             </div>
           </div>
@@ -81,7 +81,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           {error && (
             <div
               role="alert"
-              className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs sm:text-sm text-rose-800"
+              className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs sm:text-sm font-medium text-rose-800"
             >
               <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
               <span>{error}</span>
@@ -89,17 +89,17 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           )}
 
           <div>
-            <label htmlFor="jit-admin-pin" className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Admin PIN
+            <label htmlFor="jit-admin-id-input" className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Admin ID
             </label>
             <input
-              id="jit-admin-pin"
+              id="jit-admin-id-input"
               type="password"
               inputMode="numeric"
               autoFocus
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              placeholder="Enter 10-digit Admin PIN"
+              value={adminId}
+              onChange={(e) => setAdminId(e.target.value)}
+              placeholder="Enter Admin ID"
               className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 font-mono text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A2463]"
             />
           </div>
@@ -116,7 +116,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
               type="submit"
               className="min-h-[44px] px-5 py-2 rounded-lg bg-[#0A2463] hover:bg-[#1E40AF] text-white text-sm font-semibold transition-colors cursor-pointer"
             >
-              Unlock CMS
+              Verify &amp; Login
             </button>
           </div>
         </form>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowRight, BarChart3, Check, Clock, Laptop, Megaphone } from 'lucide-react';
 import { Course } from '../types';
 
@@ -24,13 +24,14 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({
   courses,
   onSelectCourseModal,
 }) => {
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+
   return (
     <section
       id="courses"
       className="py-16 lg:py-20 bg-slate-50 border-b border-slate-200 scroll-mt-16"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <div className="max-w-3xl mb-10 lg:mb-12">
           <p className="text-xs sm:text-sm font-semibold text-amber-700 mb-2">
             Career-Focused Curriculum
@@ -39,30 +40,46 @@ export const CoursesSection: React.FC<CoursesSectionProps> = ({
             Our Specialized Training Programs
           </h2>
           <p className="text-slate-600 text-base mt-2.5 leading-relaxed">
-            Explore our core career tracks in Computer Application &amp; Coding, Digital Marketing Mastery, and Share Market Trading. Select any program to view its full syllabus and enroll.
+            Explore our career tracks in Computer Application &amp; Coding, Digital Marketing Mastery, and Share Market Trading. Select any program to view its full syllabus and enroll.
           </p>
         </div>
 
-        {/* Courses 3-Column Card Grid */}
         {courses.length === 0 ? (
           <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
             <p className="font-display font-semibold text-[#0A2463] text-lg">
               No courses published yet
             </p>
             <p className="text-slate-600 text-sm mt-1">
-              Add programs anytime from the Admin Edit Panel.
+              Add programs anytime from the Admin Panel.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-7 items-stretch">
             {courses.map((course, idx) => {
               const Icon = getCourseIcon(course.title, idx);
+              const showCourseImg = Boolean(course.imageUrl) && !failedImages[course.id];
+
               return (
                 <article
                   key={course.id}
                   className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white overflow-hidden hover:border-[#1E40AF] transition-colors duration-150"
                 >
                   <div>
+                    {/* Optional Custom Course Cover Image */}
+                    {showCourseImg && (
+                      <div className="aspect-[16/9] w-full bg-slate-200 overflow-hidden border-b border-slate-200">
+                        <img
+                          src={course.imageUrl}
+                          alt={course.title}
+                          referrerPolicy="no-referrer"
+                          onError={() =>
+                            setFailedImages((prev) => ({ ...prev, [course.id]: true }))
+                          }
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+
                     {/* Royal Blue Header */}
                     <div className="bg-[#0A2463] text-white px-6 py-5 border-b-2 border-[#F59E0B]">
                       <div className="flex items-center justify-between gap-3 mb-3">

@@ -1,8 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import { BrandingSettings } from '../types';
 import { JitLogo } from './JitLogo';
 
 interface HeaderProps {
+  branding: BrandingSettings;
+  ctaLabel: string;
   onSecretAdminTrigger: () => void;
   onOpenDemoModal: () => void;
 }
@@ -16,6 +19,8 @@ const NAV_LINKS = [
 ] as const;
 
 export const Header: React.FC<HeaderProps> = ({
+  branding,
+  ctaLabel,
   onSecretAdminTrigger,
   onOpenDemoModal,
 }) => {
@@ -44,16 +49,19 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[70px] flex items-center justify-between gap-4 lg:gap-8">
-        {/* Zone 1: JIT Logo + Institute Name (5-click secret admin trigger) */}
+        {/* Zone 1: JIT Logo + Editable Institute Name (5-click secret admin trigger) */}
         <button
           type="button"
           onClick={handleLogoClick}
-          className="flex items-center gap-2.5 sm:gap-3 text-left min-w-0 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-900 rounded-lg py-1 pr-2 cursor-pointer select-none"
-          title="JIT Computer Training Institute"
+          className="flex items-center gap-2.5 sm:gap-3 text-left min-w-0 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2463] rounded-lg py-1 pr-2 cursor-pointer select-none"
+          title={branding.instituteName}
         >
-          <JitLogo className="w-10 h-10 sm:w-11 sm:h-11 shrink-0" />
+          <JitLogo
+            customLogoUrl={branding.customLogoUrl}
+            className="w-10 h-10 sm:w-11 sm:h-11 shrink-0"
+          />
           <span className="font-display font-extrabold text-sm sm:text-base lg:text-lg tracking-tight text-[#0A2463] whitespace-nowrap truncate max-w-[205px] sm:max-w-none">
-            JIT Computer Training Institute
+            {branding.instituteName}
           </span>
         </button>
 
@@ -66,21 +74,21 @@ export const Header: React.FC<HeaderProps> = ({
             <a
               key={link.href}
               href={link.href}
-              className="whitespace-nowrap shrink-0 py-1 border-b-2 border-transparent hover:border-amber-500 hover:text-[#0A2463] transition-colors duration-150"
+              className="whitespace-nowrap shrink-0 py-1 border-b-2 border-transparent hover:border-[#F59E0B] hover:text-[#0A2463] transition-colors duration-150"
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        {/* Zone 3: Golden-amber primary CTA + mobile drawer button */}
+        {/* Zone 3: Single Primary Action + Mobile Drawer Toggle */}
         <div className="flex items-center gap-3 shrink-0">
           <button
             type="button"
             onClick={onOpenDemoModal}
             className="hidden sm:inline-flex items-center justify-center px-5 py-2.5 text-sm font-bold text-slate-950 bg-[#F59E0B] hover:bg-amber-400 rounded-lg transition-colors duration-150 whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0A2463] focus-visible:ring-offset-2"
           >
-            Book a Free Demo
+            {ctaLabel}
           </button>
 
           <button
@@ -95,7 +103,6 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-1">
           {NAV_LINKS.map((link) => (
@@ -117,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               className="flex items-center justify-center min-h-[44px] w-full rounded-lg bg-[#F59E0B] hover:bg-amber-400 text-slate-950 text-sm font-bold transition-colors cursor-pointer"
             >
-              Book a Free Demo
+              {ctaLabel}
             </button>
           </div>
         </div>

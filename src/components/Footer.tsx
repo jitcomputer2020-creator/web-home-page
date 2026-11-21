@@ -1,16 +1,21 @@
 import React from 'react';
 import { Clock, Facebook, Instagram, Lock, Mail, MapPin, Phone, Youtube } from 'lucide-react';
 import { PORTAL_LINKS } from '../data/defaultData';
-import { ContactSettings } from '../types';
+import { BrandingSettings, ContactSettings } from '../types';
 import { buildWhatsAppUrl } from '../utils/storage';
 import { JitLogo } from './JitLogo';
 
 interface FooterProps {
+  branding: BrandingSettings;
   contact: ContactSettings;
   onSecretAdminTrigger: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ contact, onSecretAdminTrigger }) => {
+export const Footer: React.FC<FooterProps> = ({
+  branding,
+  contact,
+  onSecretAdminTrigger,
+}) => {
   return (
     <footer className="bg-[#0A2463] text-blue-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-14">
@@ -19,14 +24,19 @@ export const Footer: React.FC<FooterProps> = ({ contact, onSecretAdminTrigger })
           <div className="md:col-span-5">
             <div className="inline-flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4">
               <div className="bg-white rounded-xl p-3 shrink-0 shadow-xs">
-                <JitLogo className="w-16 h-16" showWordmark={true} wordmarkClassName="text-slate-900 text-[9px]" />
+                <JitLogo
+                  customLogoUrl={branding.customLogoUrl}
+                  className="w-16 h-16"
+                  showWordmark={true}
+                  wordmarkClassName="text-slate-900 text-[9px]"
+                />
               </div>
               <div>
                 <h2 className="font-display font-extrabold text-base sm:text-lg text-white tracking-tight">
-                  JIT Computer Training Institute
+                  {branding.instituteName}
                 </h2>
                 <p className="text-xs font-semibold text-amber-300 mt-0.5">
-                  Jharna Institute of Technology
+                  {branding.instituteSubtitle}
                 </p>
                 <p className="text-xs text-blue-200 mt-1.5 leading-relaxed max-w-xs">
                   Govt. Registered &amp; ISO Certified institute offering practical Computer Application, Coding, Digital Marketing &amp; Share Market training.
@@ -34,35 +44,41 @@ export const Footer: React.FC<FooterProps> = ({ contact, onSecretAdminTrigger })
               </div>
             </div>
 
-            {/* Social Media Links */}
+            {/* Editable Social Links */}
             <div className="flex items-center gap-2.5 mt-4">
-              <a
-                href="https://www.facebook.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="JIT on Facebook"
-                className="w-9 h-9 rounded-lg bg-blue-900/70 hover:bg-[#F59E0B] hover:text-slate-950 text-blue-100 flex items-center justify-center transition-colors"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a
-                href="https://www.instagram.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="JIT on Instagram"
-                className="w-9 h-9 rounded-lg bg-blue-900/70 hover:bg-[#F59E0B] hover:text-slate-950 text-blue-100 flex items-center justify-center transition-colors"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href="https://www.youtube.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="JIT on YouTube"
-                className="w-9 h-9 rounded-lg bg-blue-900/70 hover:bg-[#F59E0B] hover:text-slate-950 text-blue-100 flex items-center justify-center transition-colors"
-              >
-                <Youtube className="w-4 h-4" />
-              </a>
+              {contact.facebookUrl && (
+                <a
+                  href={contact.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="JIT on Facebook"
+                  className="w-9 h-9 rounded-lg bg-blue-900/70 hover:bg-[#F59E0B] hover:text-slate-950 text-blue-100 flex items-center justify-center transition-colors"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+              )}
+              {contact.instagramUrl && (
+                <a
+                  href={contact.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="JIT on Instagram"
+                  className="w-9 h-9 rounded-lg bg-blue-900/70 hover:bg-[#F59E0B] hover:text-slate-950 text-blue-100 flex items-center justify-center transition-colors"
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+              )}
+              {contact.youtubeUrl && (
+                <a
+                  href={contact.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="JIT on YouTube"
+                  className="w-9 h-9 rounded-lg bg-blue-900/70 hover:bg-[#F59E0B] hover:text-slate-950 text-blue-100 flex items-center justify-center transition-colors"
+                >
+                  <Youtube className="w-4 h-4" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -84,7 +100,7 @@ export const Footer: React.FC<FooterProps> = ({ contact, onSecretAdminTrigger })
               </li>
               <li>
                 <a href="#gallery" className="text-blue-100 hover:text-white transition-colors">
-                  Student Photo Gallery
+                  Photo &amp; Video Gallery
                 </a>
               </li>
               <li>
@@ -142,8 +158,8 @@ export const Footer: React.FC<FooterProps> = ({ contact, onSecretAdminTrigger })
               <li className="pt-1">
                 <a
                   href={buildWhatsAppUrl(
-                    'Hello JIT Computer Training Institute, I would like information about courses.',
-                    contact.phone
+                    `Hello ${branding.instituteName}, I would like information about courses.`,
+                    contact.whatsappNumber
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -156,10 +172,9 @@ export const Footer: React.FC<FooterProps> = ({ contact, onSecretAdminTrigger })
           </div>
         </div>
 
-        {/* Bottom Copyright + Subtle Admin Lock Icon */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-blue-300">
           <p>
-            © {new Date().getFullYear()} Jharna Institute of Technology (JIT). All rights reserved.
+            © {new Date().getFullYear()} {branding.instituteSubtitle} (JIT). All rights reserved.
           </p>
 
           <div className="flex items-center gap-3">

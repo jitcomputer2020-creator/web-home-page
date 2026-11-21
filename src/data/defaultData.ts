@@ -1,7 +1,7 @@
 import { InstituteData } from '../types';
 
 export const DEFAULT_HERO_IMAGE = '/src/assets/images/hero_jit_campus_1795242509151.jpg';
-export const ADMIN_ACCESS_PIN = '8017462677';
+export const ADMIN_ACCESS_ID = '8017462677';
 
 export const PORTAL_LINKS = [
   {
@@ -32,17 +32,67 @@ export const PREFERRED_TIMINGS = [
 ] as const;
 
 export const DEFAULT_INSTITUTE_DATA: InstituteData = {
+  branding: {
+    customLogoUrl: '',
+    instituteName: 'JIT Computer Training Institute',
+    instituteSubtitle: 'Jharna Institute of Technology',
+  },
   hero: {
     headline: 'Unlock Your Potential in Technology & Finance!',
     subheadline:
       'Learn Computer Application, Coding, Digital Marketing & Share Market Trading from Industry Experts with 100% Practical Experience.',
+    primaryCtaText: 'Explore Our Courses',
+    secondaryCtaText: 'Book a Free Demo',
+    trustItems: [
+      'Govt. Registered',
+      'ISO Certified',
+      '100% Practical Training',
+      'Valid Certification',
+    ],
+    mediaType: 'image',
     heroImageUrl: DEFAULT_HERO_IMAGE,
+    heroVideoUrl: '',
+    mediaCaption: '100% Practical Computer, Digital Marketing & Stock Market Lab',
   },
+  features: [
+    {
+      id: 'feat-1',
+      title: 'Practical Training',
+      description:
+        'Dedicated individual desktop workstations with 100% hands-on lab sessions from day one.',
+      icon: 'Laptop',
+    },
+    {
+      id: 'feat-2',
+      title: 'Expert Mentorship',
+      description:
+        'Learn directly from experienced IT trainers, marketing strategists, and active market practitioners.',
+      icon: 'Users',
+    },
+    {
+      id: 'feat-3',
+      title: 'Valid Certifications',
+      description:
+        'Govt. registered & ISO certified credentials verifiable online for jobs and career growth.',
+      icon: 'Award',
+    },
+    {
+      id: 'feat-4',
+      title: 'Career & Trading Support',
+      description:
+        'Portfolio building, interview readiness, and ongoing live market strategy review support.',
+      icon: 'Briefcase',
+    },
+  ],
   contact: {
     phone: '8961260151',
+    whatsappNumber: '8961260151',
     email: 'jitcomputer2020@gmail.com',
     address: 'JIT Computer Training Institute (Jharna Institute of Technology), Main Campus',
     timings: 'Mon–Sat, 8:00 AM – 7:00 PM',
+    facebookUrl: 'https://www.facebook.com/',
+    instagramUrl: 'https://www.instagram.com/',
+    youtubeUrl: 'https://www.youtube.com/',
   },
   courses: [
     {
@@ -52,13 +102,13 @@ export const DEFAULT_INSTITUTE_DATA: InstituteData = {
       duration: '6 – 12 Months',
       fee: 'Contact for Fee Details',
       summary:
-        'MS Office, Tally Prime, Internet & AI tools, Hardware basics, Web Design, and Coding fundamentals with 100% practical lab sessions.',
+        'MS Office, Tally Prime, Internet, Coding fundamentals, and practical office automation taught on dedicated lab workstations.',
       modules: [
         'Introduction to Computers & Hardware Basics',
         'Operating Systems & File Management',
         'Microsoft Office (Word, Excel & PowerPoint)',
         'Tally Prime with GST & Business Accounting',
-        'Introduction to the Internet and AI Productivity',
+        'Introduction to the Internet & AI Productivity',
         'Basic Web Design (HTML & CSS)',
         'Introduction to Programming Concepts',
       ],
@@ -76,8 +126,8 @@ export const DEFAULT_INSTITUTE_DATA: InstituteData = {
         'Website Development & Conversion Optimization',
         'Search Engine Optimization (SEO)',
         'Content Strategy & Copywriting',
-        'Social Media Marketing & Meta Ads',
-        'Google AdWords & Paid Advertising (PPC)',
+        'Social Media Ads (Meta & Instagram)',
+        'Google Ads & Paid Advertising (PPC)',
         'E-commerce, Influencer & Affiliate Marketing',
       ],
     },
@@ -90,13 +140,13 @@ export const DEFAULT_INSTITUTE_DATA: InstituteData = {
       summary:
         'Stock Market Analysis, Intraday & Swing Trading, Options, and Financial Planning taught on real-time market charts.',
       modules: [
-        'Introduction to Share Market & Financial Instruments',
+        'Introduction to Stock Market Analysis',
+        'Understanding Financial Markets & Instruments',
         'Behavioral Finance & Market Psychology',
         'Fundamental Analysis & Economic Cycles',
-        'Advanced Technical Analysis & Price Action',
         'Intraday & Swing Trading Strategies',
-        'Portfolio Management & Risk Control',
-        'Futures and Options (F&O) Mastery',
+        'Options Trading & Risk Management',
+        'Portfolio Management & Financial Planning',
       ],
     },
   ],
@@ -133,28 +183,32 @@ export const DEFAULT_INSTITUTE_DATA: InstituteData = {
   gallery: [
     {
       id: 'gal-1',
-      imageUrl: '/src/assets/images/gallery_classroom_lab_1795242491930.jpg',
+      mediaType: 'image',
+      mediaUrl: '/src/assets/images/gallery_classroom_lab_1795242491930.jpg',
       caption: 'Students practicing hands-on Computer Application & Tally Prime in our main lab',
       category: 'Classroom',
       addedAt: '2026-09-12',
     },
     {
       id: 'gal-2',
-      imageUrl: '/src/assets/images/gallery_trading_workshop_1795242491881.jpg',
+      mediaType: 'image',
+      mediaUrl: '/src/assets/images/gallery_trading_workshop_1795242491881.jpg',
       caption: 'Live candlestick chart & technical analysis session for Share Market students',
       category: 'Classroom',
       addedAt: '2026-10-04',
     },
     {
       id: 'gal-3',
-      imageUrl: '/src/assets/images/gallery_certificate_ceremony_1795242492238.jpg',
+      mediaType: 'image',
+      mediaUrl: '/src/assets/images/gallery_certificate_ceremony_1795242492238.jpg',
       caption: "Teacher's Day & annual ISO certificate distribution celebration with graduates",
       category: 'Events',
       addedAt: '2026-10-22',
     },
     {
       id: 'gal-4',
-      imageUrl: '/src/assets/images/gallery_student_cohort_1795242491602.jpg',
+      mediaType: 'image',
+      mediaUrl: '/src/assets/images/gallery_student_cohort_1795242491602.jpg',
       caption: 'Digital Marketing & Coding student cohort collaborating on live projects',
       category: 'Students',
       addedAt: '2026-11-05',
@@ -198,6 +252,7 @@ export const DEFAULT_INSTITUTE_DATA: InstituteData = {
       dateLabel: 'July 2026',
     },
   ],
+  customSections: [],
   certificates: [
     {
       id: 'JIT-2026-0101',

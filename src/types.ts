@@ -1,16 +1,51 @@
 export type NoticeBadge = 'New' | 'Exam' | 'Batch' | 'Holiday';
 
+export type MediaType = 'image' | 'video';
+
+export type FeatureIconKey =
+  | 'Laptop'
+  | 'Users'
+  | 'Award'
+  | 'Briefcase'
+  | 'ShieldCheck'
+  | 'TrendingUp'
+  | 'BookOpen'
+  | 'Globe';
+
+export interface BrandingSettings {
+  customLogoUrl: string;
+  instituteName: string;
+  instituteSubtitle: string;
+}
+
 export interface HeroSettings {
   headline: string;
   subheadline: string;
+  primaryCtaText: string;
+  secondaryCtaText: string;
+  trustItems: string[];
+  mediaType: MediaType;
   heroImageUrl: string;
+  heroVideoUrl: string;
+  mediaCaption: string;
+}
+
+export interface FeatureItem {
+  id: string;
+  title: string;
+  description: string;
+  icon: FeatureIconKey;
 }
 
 export interface ContactSettings {
   phone: string;
+  whatsappNumber: string;
   email: string;
   address: string;
   timings: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  youtubeUrl: string;
 }
 
 export interface Course {
@@ -20,6 +55,7 @@ export interface Course {
   duration: string;
   fee: string;
   summary: string;
+  imageUrl?: string;
   modules: string[];
 }
 
@@ -27,7 +63,8 @@ export type GalleryCategory = 'Classroom' | 'Events' | 'Students';
 
 export interface GalleryItem {
   id: string;
-  imageUrl: string;
+  mediaType: MediaType;
+  mediaUrl: string;
   caption: string;
   category: GalleryCategory;
   addedAt: string;
@@ -50,6 +87,26 @@ export interface NoticeItem {
   active: boolean;
 }
 
+export type CustomSectionPlacement =
+  | 'after-hero'
+  | 'after-courses'
+  | 'after-gallery'
+  | 'before-footer';
+
+export type CustomSectionTheme = 'light' | 'royal-blue';
+
+export interface CustomSectionBlock {
+  id: string;
+  title: string;
+  bodyText: string;
+  blockType: 'text' | 'image' | 'video';
+  mediaUrl: string;
+  ctaLabel: string;
+  ctaUrl: string;
+  placement: CustomSectionPlacement;
+  theme: CustomSectionTheme;
+}
+
 export interface CertificateRecord {
   id: string;
   studentName: string;
@@ -66,18 +123,22 @@ export interface AdmissionEnquiry {
   mobile: string;
   course: string;
   preferredTiming: string;
+  message?: string;
   type: 'Demo' | 'Enroll';
   submittedAt: string;
   status: EnquiryStatus;
 }
 
 export interface InstituteData {
+  branding: BrandingSettings;
   hero: HeroSettings;
+  features: FeatureItem[];
   contact: ContactSettings;
   courses: Course[];
   gallery: GalleryItem[];
   reviews: GoogleReview[];
   notices: NoticeItem[];
+  customSections: CustomSectionBlock[];
   certificates: CertificateRecord[];
   enquiries: AdmissionEnquiry[];
 }

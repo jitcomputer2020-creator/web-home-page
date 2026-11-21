@@ -9,38 +9,44 @@ import {
   Send,
   X,
 } from 'lucide-react';
-import { PREFERRED_TIMINGS } from '../data/defaultData';
 import { AdmissionEnquiry, Course } from '../types';
 import { buildWhatsAppUrl } from '../utils/storage';
 
 interface CourseModalProps {
   course: Course | null;
-  contactPhone: string;
+  courses: Course[];
+  whatsappNumber: string;
   onClose: () => void;
   onSubmitEnquiry: (
     payload: Omit<AdmissionEnquiry, 'id' | 'submittedAt' | 'status'>
-  ) => AdmissionEnquiry;
+  ) => { record: AdmissionEnquiry; waUrl: string };
 }
 
 export const CourseModal: React.FC<CourseModalProps> = ({
   course,
-  contactPhone,
+  courses,
+  whatsappNumber,
   onClose,
   onSubmitEnquiry,
 }) => {
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
-  const [preferredTiming, setPreferredTiming] = useState<string>(PREFERRED_TIMINGS[0]);
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [savedRecord, setSavedRecord] = useState<AdmissionEnquiry | null>(null);
+  const [submittedInfo, setSubmittedInfo] = useState<{
+    record: AdmissionEnquiry;
+    waUrl: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!course) return;
     setName('');
     setMobile('');
-    setPreferredTiming(PREFERRED_TIMINGS[0]);
+    setSelectedCourse(course.title);
+    setMessage('');
     setError(null);
-    setSavedRecord(null);
+    setSubmittedInfo(null);
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -66,25 +72,26 @@ export const CourseModal: React.FC<CourseModalProps> = ({
       return;
     }
 
-    const record = onSubmitEnquiry({
+    const result = onSubmitEnquiry({
       name: trimmedName,
       mobile: digits.slice(-10),
-      course: course.title,
-      preferredTiming,
+      course: selectedCourse || course.title,
+      preferredTiming: 'Flexible',
+      message: message.trim() || 'Interested in course enrollment & fee details.',
       type: 'Enroll',
     });
-    setSavedRecord(record);
+
+    setSubmittedInfo(result);
+    setName('');
+    setMobile('');
+    setSelectedCourse(course.title);
+    setMessage('');
   };
 
-  const waHref = savedRecord
-    ? buildWhatsAppUrl(
-        `Hello JIT Computer Training Institute, I want to enroll in:\n• Course: ${savedRecord.course}\n• Name: ${savedRecord.name}\n• Mobile: ${savedRecord.mobile}\n• Preferred Timing: ${savedRecord.preferredTiming}`,
-        contactPhone
-      )
-    : buildWhatsAppUrl(
-        `Hello JIT Computer Training Institute, please share fee & batch details for ${course.title}.`,
-        contactPhone
-      );
+  const quickWaHref = buildWhatsAppUrl(
+    `Hello JIT Computer Training Institute, I would like to inquire/apply:\n- Name: Student\n- Phone: Not provided\n- Course: ${selectedCourse || course.title}\n- Message: Please share fee & batch details.`,
+    whatsappNumber
+  );
 
   return (
     <div
@@ -159,90 +166,124 @@ export const CourseModal: React.FC<CourseModalProps> = ({
           </div>
 
           {/* Enrollment / Quick Inquiry Form */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-            <h3 className="font-display font-bold text-base text-[#0A2463] mb-1">
-              Enroll or Request Fee Details
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 mb-4">
-              Submit your contact details below and our admissions desk will reach out with batch timings.
-            </p>
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-4">
+            <div>
+              <h3 className="font-display font-bold text-base text-[#0A2463] mb-1">
+                Enroll or Request Fee Details
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600">
+                Fill in your details below to send your enrollment inquiry directly to JIT on WhatsApp.
+              </p>
+            </div>
 
-            {savedRecord ? (
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 space-y-3">
+            {submittedInfo && (
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-emerald-800 font-semibold text-sm">
                   <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0" aria-hidden="true" />
-                  <span>Enrollment inquiry saved for {savedRecord.course}</span>
+                  <span>Redirecting to JIT WhatsApp...</span>
                 </div>
                 <a
-                  href={waHref}
+                  href={submittedInfo.waUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 min-h-[42px] px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors"
+                  className="inline-flex items-center justify-center gap-2 min-h-[38px] px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors"
                 >
-                  <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                  <span>Send on WhatsApp ({contactPhone})</span>
+                  <MessageCircle className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>Open WhatsApp ({whatsappNumber})</span>
                 </a>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-3">
-                {error && (
-                  <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">
-                    <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
-                    <span>{error}</span>
-                  </div>
-                )}
+            )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {error && (
+                <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800">
+                  <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label htmlFor="course-modal-name" className="block text-xs font-semibold text-slate-700 mb-1">
+                    Name
+                  </label>
                   <input
+                    id="course-modal-name"
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Student Full Name"
-                    className="min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-900"
+                    className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-900"
                   />
+                </div>
+                <div>
+                  <label htmlFor="course-modal-phone" className="block text-xs font-semibold text-slate-700 mb-1">
+                    Phone Number
+                  </label>
                   <input
+                    id="course-modal-phone"
                     type="tel"
                     required
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value)}
                     placeholder="10-digit Mobile Number"
-                    className="min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-mono text-slate-900"
+                    className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-mono text-slate-900"
                   />
+                </div>
+                <div>
+                  <label htmlFor="course-modal-select" className="block text-xs font-semibold text-slate-700 mb-1">
+                    Course Interested
+                  </label>
                   <select
-                    value={preferredTiming}
-                    onChange={(e) => setPreferredTiming(e.target.value)}
-                    className="min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-900"
+                    id="course-modal-select"
+                    value={selectedCourse}
+                    onChange={(e) => setSelectedCourse(e.target.value)}
+                    className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-900"
                   >
-                    {PREFERRED_TIMINGS.map((slot) => (
-                      <option key={slot} value={slot}>
-                        {slot}
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.title}>
+                        {c.title}
                       </option>
                     ))}
                   </select>
                 </div>
+              </div>
 
-                <div className="flex flex-wrap items-center gap-3 pt-1">
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center gap-2 min-h-[42px] px-5 py-2 rounded-lg bg-[#0A2463] hover:bg-[#1E40AF] text-white text-sm font-semibold cursor-pointer"
-                  >
-                    <Send className="w-4 h-4" aria-hidden="true" />
-                    <span>Submit Enrollment Inquiry</span>
-                  </button>
+              <div>
+                <label htmlFor="course-modal-message" className="block text-xs font-semibold text-slate-700 mb-1">
+                  Message / Notes
+                </label>
+                <textarea
+                  id="course-modal-message"
+                  rows={2}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Preferred batch timing, questions about fees, or notes..."
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-900"
+                />
+              </div>
 
-                  <a
-                    href={waHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 min-h-[42px] px-4 py-2 rounded-lg border border-emerald-600 text-emerald-700 hover:bg-emerald-50 text-sm font-semibold"
-                  >
-                    <MessageCircle className="w-4 h-4" aria-hidden="true" />
-                    <span>Ask on WhatsApp</span>
-                  </a>
-                </div>
-              </form>
-            )}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center gap-2 min-h-[42px] px-5 py-2 rounded-lg bg-[#0A2463] hover:bg-[#1E40AF] text-white text-sm font-semibold cursor-pointer"
+                >
+                  <Send className="w-4 h-4" aria-hidden="true" />
+                  <span>Submit</span>
+                </button>
+
+                <a
+                  href={quickWaHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 min-h-[42px] px-4 py-2 rounded-lg border border-emerald-600 text-emerald-700 hover:bg-emerald-50 text-sm font-semibold"
+                >
+                  <MessageCircle className="w-4 h-4" aria-hidden="true" />
+                  <span>Ask on WhatsApp</span>
+                </a>
+              </div>
+            </form>
           </div>
         </div>
       </div>
