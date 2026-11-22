@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
+  AlertCircle,
   Award,
   BookOpen,
   Building2,
   Check,
+  Cloud,
+  CloudOff,
   Download,
   ExternalLink,
   Image as ImageIcon,
@@ -15,6 +18,7 @@ import {
   Pencil,
   Phone,
   Plus,
+  RefreshCw,
   RotateCcw,
   Star,
   Trash2,
@@ -53,10 +57,21 @@ import {
   validateImportedData,
 } from '../utils/storage';
 
+export type CloudSyncStatus = 'local-only' | 'idle' | 'saving' | 'synced' | 'error';
+
 interface AdminPanelProps {
   isOpen: boolean;
   data: InstituteData;
+  firebaseUserEmail: string | null;
+  isCloudAdmin: boolean;
+  cloudSyncStatus: CloudSyncStatus;
+  cloudSyncError: string | null;
+  onConnectCloudAdmin: () => Promise<void>;
+  onDisconnectCloudAdmin: () => Promise<void>;
+  onPushCurrentToCloud: () => Promise<void>;
   onUpdateData: (updater: (prev: InstituteData) => InstituteData) => void;
+  onUpdateEnquiryStatus: (enquiryId: string, status: EnquiryStatus) => void;
+  onDeleteEnquiry: (enquiryId: string) => void;
   onImportData: (imported: InstituteData) => void;
   onResetDefaults: () => void;
   onClose: () => void;
@@ -108,7 +123,16 @@ const PLACEMENT_OPTIONS: Array<{ value: CustomSectionPlacement; label: string }>
 export const AdminPanel: React.FC<AdminPanelProps> = ({
   isOpen,
   data,
+  firebaseUserEmail,
+  isCloudAdmin,
+  cloudSyncStatus,
+  cloudSyncError,
+  onConnectCloudAdmin,
+  onDisconnectCloudAdmin,
+  onPushCurrentToCloud,
   onUpdateData,
+  onUpdateEnquiryStatus,
+  onDeleteEnquiry,
   onImportData,
   onResetDefaults,
   onClose,
@@ -118,6 +142,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [statusFeedback, setStatusFeedback] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [connectingCloud, setConnectingCloud] = useState(false);
 
   // 1. Branding & Texts
   const [customLogoUrl, setCustomLogoUrl] = useState(data.branding.customLogoUrl);
@@ -341,7 +366,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     if (!file) return;
     setUploadingMedia(true);
     try {
-      const compressed = await compressImageFile(file, 1440, 0.82);
+      const compressed = await compressImageFile(file, 900, 0.74);
       setHeroImageUrl(compressed);
       setHeroMediaType('image');
       onUpdateData((prev) => ({
@@ -399,7 +424,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     if (!file) return;
     setUploadingMedia(true);
     try {
-      const compressed = await compressImageFile(file, 1280, 0.84);
+      const compressed = await compressImageFile(file, 900, 0.74);
       setStorefrontImageUrl(compressed);
       onUpdateData((prev) => ({
         ...prev,
@@ -470,7 +495,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     if (!file) return;
     setUploadingMedia(true);
     try {
-      const compressed = await compressImageFile(file, 960, 0.8);
+      const compressed = await compressImageFile(file, 840, 0.72);
       setCourseImageUrl(compressed);
       showToast('Course thumbnail ready.');
     } catch {
@@ -555,7 +580,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         setGalMediaUrl(videoUrl);
         showToast('Video file ready — add a caption and save.');
       } else {
-        const compressed = await compressImageFile(file, 1200, 0.8);
+        const compressed = await compressImageFile(file, 860, 0.72);
         setGalMediaUrl(compressed);
         showToast('Photo ready — add a caption and save.');
       }
@@ -744,7 +769,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     if (!file) return;
     setUploadingMedia(true);
     try {
-      const compressed = await compressImageFile(file, 1280, 0.82);
+      const compressed = await compressImageFile(file, 880, 0.74);
       setCustomMediaUrl(compressed);
       showToast('Custom section image ready.');
     } catch {
@@ -890,11 +915,38 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         {/* Top Bar */}
         <div className="bg-[#0A2463] text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <div>
-            <h2 className="font-display font-bold text-lg sm:text-xl tracking-tight">
-              JIT Admin CMS Control Panel
-            </h2>
-            <p className="text-xs text-blue-200">
-              Auto-saved to browser storage · Full live site control
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="font-display font-bold text-lg sm:text-xl tracking-tight">
+                JIT Admin CMS Control Panel
+              </h2>
+              {isCloudAdmin ? (
+                <span
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold ${
+                    cloudSyncStatus === 'saving'
+                      ? 'bg-amber-500/20 text-amber-200 border border-amber-400/40'
+                      : cloudSyncStatus === 'error'
+                        ? 'bg-rose-500/25 text-rose-100 border border-rose-400/40'
+                        : 'bg-emerald-500/20 text-emerald-200 border border-emerald-400/40'
+                  }`}
+                >
+                  <Cloud className="w-3.5 h-3.5" aria-hidden="true" />
+                  {cloudSyncStatus === 'saving'
+                    ? 'Syncing to Cloud...'
+                    : cloudSyncStatus === 'error'
+                      ? 'Cloud Sync Error'
+                      : 'Firebase Cloud Live'}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/20 text-amber-200 border border-amber-400/40">
+                  <CloudOff className="w-3.5 h-3.5" aria-hidden="true" />
+                  Local Preview Only
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-blue-200 mt-0.5">
+              {isCloudAdmin
+                ? `Synced globally via Firebase Firestore (${firebaseUserEmail})`
+                : 'Sign in with Google Admin to publish edits globally across all devices'}
             </p>
           </div>
 
@@ -904,6 +956,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <Check className="w-3.5 h-3.5" aria-hidden="true" />
                 {statusFeedback}
               </span>
+            )}
+
+            {isCloudAdmin && (
+              <button
+                type="button"
+                onClick={async () => {
+                  await onPushCurrentToCloud();
+                  showToast('Published current site data to Cloud Firestore.');
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 border border-emerald-500 text-xs font-semibold text-white cursor-pointer"
+              >
+                <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>Publish to Cloud</span>
+              </button>
             )}
 
             <button
@@ -976,6 +1042,62 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Cloud Sync Connection / Error Banner */}
+        {(!isCloudAdmin || cloudSyncError) && (
+          <div
+            className={`px-5 py-2.5 border-b flex flex-wrap items-center justify-between gap-3 shrink-0 text-xs ${
+              cloudSyncError
+                ? 'bg-rose-50 border-rose-200 text-rose-900'
+                : 'bg-amber-50 border-amber-200 text-amber-950'
+            }`}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <AlertCircle
+                className={`w-4 h-4 shrink-0 ${
+                  cloudSyncError ? 'text-rose-600' : 'text-amber-600'
+                }`}
+                aria-hidden="true"
+              />
+              <span className="font-medium">
+                {cloudSyncError
+                  ? cloudSyncError
+                  : firebaseUserEmail
+                    ? `Signed in as ${firebaseUserEmail}, which is not authorized for cloud writes. Sign in with jitcomputer2020@gmail.com to sync globally.`
+                    : 'Connect Google Admin Sign-In (jitcomputer2020@gmail.com) so all edits sync globally in real-time across every device.'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {firebaseUserEmail && !isCloudAdmin && (
+                <button
+                  type="button"
+                  onClick={() => void onDisconnectCloudAdmin()}
+                  className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-700 font-semibold hover:bg-slate-50 cursor-pointer"
+                >
+                  Sign Out
+                </button>
+              )}
+              {!isCloudAdmin && (
+                <button
+                  type="button"
+                  disabled={connectingCloud}
+                  onClick={async () => {
+                    setConnectingCloud(true);
+                    try {
+                      await onConnectCloudAdmin();
+                    } finally {
+                      setConnectingCloud(false);
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0A2463] hover:bg-[#1E40AF] text-white font-semibold disabled:opacity-60 cursor-pointer"
+                >
+                  <Cloud className="w-3.5 h-3.5 text-[#F59E0B]" aria-hidden="true" />
+                  <span>{connectingCloud ? 'Connecting...' : 'Sign in with Google to Sync'}</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* 8-Tab Navigation */}
         <div className="border-b border-slate-200 bg-slate-50 px-4 sm:px-6 overflow-x-auto shrink-0">
@@ -2837,14 +2959,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           <select
                             value={enq.status}
                             onChange={(e) =>
-                              onUpdateData((prev) => ({
-                                ...prev,
-                                enquiries: prev.enquiries.map((item) =>
-                                  item.id === enq.id
-                                    ? { ...item, status: e.target.value as EnquiryStatus }
-                                    : item
-                                ),
-                              }))
+                              onUpdateEnquiryStatus(enq.id, e.target.value as EnquiryStatus)
                             }
                             className="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold"
                           >
@@ -2865,12 +2980,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           </a>
                           <button
                             type="button"
-                            onClick={() =>
-                              onUpdateData((prev) => ({
-                                ...prev,
-                                enquiries: prev.enquiries.filter((item) => item.id !== enq.id),
-                              }))
-                            }
+                            onClick={() => onDeleteEnquiry(enq.id)}
                             className="p-1.5 rounded-lg border border-rose-200 text-rose-700 cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />

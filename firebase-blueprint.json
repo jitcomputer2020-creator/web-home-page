@@ -1,0 +1,168 @@
+{
+  "entities": {
+    "SiteContent": {
+      "title": "SiteContent",
+      "description": "Global dynamic homepage configuration, branding, portals, campus showcase, courses, gallery, reviews, notices, and certificates for JIT Computer Training Institute.",
+      "type": "object",
+      "properties": {
+        "branding": {
+          "type": "object",
+          "description": "Institute logo URL, name, and subtitle."
+        },
+        "hero": {
+          "type": "object",
+          "description": "Hero headlines, CTAs, trust badges, and media configuration."
+        },
+        "portals": {
+          "type": "array",
+          "description": "Quick-access portal cards displayed below the hero and in the footer."
+        },
+        "campusShowcase": {
+          "type": "object",
+          "description": "3-column 3D Campus & Facilities showcase settings."
+        },
+        "features": {
+          "type": "array",
+          "description": "Why Choose JIT feature cards."
+        },
+        "contact": {
+          "type": "object",
+          "description": "Public institute phone, WhatsApp target, email, address, hours, map links, and social URLs."
+        },
+        "courses": {
+          "type": "array",
+          "description": "Training programs catalog."
+        },
+        "gallery": {
+          "type": "array",
+          "description": "Photo and video gallery items."
+        },
+        "reviews": {
+          "type": "array",
+          "description": "Student Google reviews."
+        },
+        "notices": {
+          "type": "array",
+          "description": "Live notices and ticker announcements."
+        },
+        "customSections": {
+          "type": "array",
+          "description": "Dynamic custom content blocks."
+        },
+        "certificates": {
+          "type": "array",
+          "description": "Publicly verifiable certificate records."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the last homepage update."
+        },
+        "updatedBy": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "UID of the authenticated admin who saved the update."
+        }
+      },
+      "required": [
+        "branding",
+        "hero",
+        "portals",
+        "campusShowcase",
+        "features",
+        "contact",
+        "courses",
+        "gallery",
+        "reviews",
+        "notices",
+        "customSections",
+        "certificates"
+      ]
+    },
+    "AdmissionEnquiry": {
+      "title": "AdmissionEnquiry",
+      "description": "Student admission, course enrollment, or free demo booking enquiry submitted from the homepage.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120,
+          "description": "Applicant full name."
+        },
+        "mobile": {
+          "type": "string",
+          "pattern": "^[0-9]{10,15}$",
+          "minLength": 10,
+          "maxLength": 15,
+          "description": "Applicant 10-15 digit phone number."
+        },
+        "course": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "description": "Selected course or program title."
+        },
+        "preferredTiming": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "Preferred batch or demo slot."
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 600,
+          "description": "Optional inquiry message or notes."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["Demo", "Enroll"],
+          "description": "Enquiry category."
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO submission timestamp."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["New", "Contacted", "Enrolled"],
+          "description": "Admin follow-up status."
+        }
+      },
+      "required": ["name", "mobile", "course", "preferredTiming", "type", "submittedAt", "status"]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized admin user record mapped by Firebase Auth UID.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "maxLength": 160,
+          "description": "Verified admin email."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin"],
+          "description": "Assigned role."
+        }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/siteContent/{docId}": {
+      "schema": { "$ref": "#/entities/SiteContent" },
+      "description": "Stores public homepage CMS state at siteContent/homepage."
+    },
+    "/enquiries/{enquiryId}": {
+      "schema": { "$ref": "#/entities/AdmissionEnquiry" },
+      "description": "Stores student demo and admission enquiries (PII isolated to admin reads)."
+    },
+    "/admins/{uid}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Authorized administrator UIDs."
+    }
+  }
+}

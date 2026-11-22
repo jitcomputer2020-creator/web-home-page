@@ -1,0 +1,172 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedEmail() {
+      return isSignedIn()
+        && 'email_verified' in request.auth.token
+        && request.auth.token.email_verified == true;
+    }
+
+    function isTokenAdmin() {
+      return isVerifiedEmail()
+        && 'email' in request.auth.token
+        && request.auth.token.email == 'jitcomputer2020@gmail.com';
+    }
+
+    function isAdmin() {
+      return isTokenAdmin()
+        || (isVerifiedEmail() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+    }
+
+    function isValidSiteContent(data) {
+      return data.keys().hasAll([
+          'branding',
+          'hero',
+          'portals',
+          'campusShowcase',
+          'features',
+          'contact',
+          'courses',
+          'gallery',
+          'reviews',
+          'notices',
+          'customSections',
+          'certificates',
+          'updatedAt',
+          'updatedBy'
+        ])
+        && data.keys().hasOnly([
+          'branding',
+          'hero',
+          'portals',
+          'campusShowcase',
+          'features',
+          'contact',
+          'courses',
+          'gallery',
+          'reviews',
+          'notices',
+          'customSections',
+          'certificates',
+          'updatedAt',
+          'updatedBy'
+        ])
+        && data.branding is map
+        && data.hero is map
+        && data.portals is list && data.portals.size() <= 10
+        && data.campusShowcase is map
+        && data.features is list && data.features.size() <= 20
+        && data.contact is map
+        && data.courses is list && data.courses.size() <= 50
+        && data.gallery is list && data.gallery.size() <= 100
+        && data.reviews is list && data.reviews.size() <= 100
+        && data.notices is list && data.notices.size() <= 50
+        && data.customSections is list && data.customSections.size() <= 30
+        && data.certificates is list && data.certificates.size() <= 200
+        && data.updatedAt == request.time
+        && data.updatedBy is string
+        && data.updatedBy.size() >= 1
+        && data.updatedBy.size() <= 128
+        && data.updatedBy == request.auth.uid;
+    }
+
+    function isValidEnquiryBase(data) {
+      return data.keys().hasAll([
+          'id',
+          'name',
+          'mobile',
+          'course',
+          'preferredTiming',
+          'type',
+          'submittedAt',
+          'status'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'name',
+          'mobile',
+          'course',
+          'preferredTiming',
+          'message',
+          'type',
+          'submittedAt',
+          'status'
+        ])
+        && data.id is string && data.id.size() >= 1 && data.id.size() <= 128
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 120
+        && data.mobile is string && data.mobile.size() >= 10 && data.mobile.size() <= 15 && data.mobile.matches('^[0-9]{10,15}$')
+        && data.course is string && data.course.size() >= 1 && data.course.size() <= 160
+        && data.preferredTiming is string && data.preferredTiming.size() >= 1 && data.preferredTiming.size() <= 80
+        && (!('message' in data) || (data.message is string && data.message.size() <= 600))
+        && data.type in ['Demo', 'Enroll']
+        && data.submittedAt is string && data.submittedAt.size() >= 10 && data.submittedAt.size() <= 40
+        && data.status in ['New', 'Contacted', 'Enrolled'];
+    }
+
+    // Public homepage CMS state (read-only for visitors, write-protected for verified Admin)
+    match /siteContent/{docId} {
+      allow get: if docId == 'homepage';
+      allow list: if false;
+      allow create: if isSignedIn() && docId == 'homepage' && isValidSiteContent(incoming()) && isAdmin();
+      allow update: if isSignedIn() && docId == 'homepage' && isValidSiteContent(incoming()) && isAdmin();
+      allow delete: if false;
+    }
+
+    // Student enquiries (PII isolated: public can create 'New' enquiries; only Admin can read/manage)
+    match /enquiries/{enquiryId} {
+      allow get: if isSignedIn() && isValidId(enquiryId) && isAdmin();
+      allow list: if isTokenAdmin();
+      allow create: if isValidId(enquiryId)
+        && isValidEnquiryBase(incoming())
+        && incoming().id == enquiryId
+        && incoming().status == 'New';
+      allow update: if isSignedIn()
+        && isValidId(enquiryId)
+        && isValidEnquiryBase(incoming())
+        && isAdmin()
+        && incoming().id == existing().id
+        && incoming().name == existing().name
+        && incoming().mobile == existing().mobile
+        && incoming().course == existing().course
+        && incoming().preferredTiming == existing().preferredTiming
+        && incoming().type == existing().type
+        && incoming().submittedAt == existing().submittedAt
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status']);
+      allow delete: if isSignedIn() && isValidId(enquiryId) && isAdmin();
+    }
+
+    // Admin UID lookup registry (read self only; never writable from client)
+    match /admins/{uid} {
+      allow get: if isSignedIn() && request.auth.uid == uid && isValidId(uid);
+      allow list, create, update, delete: if false;
+    }
+
+    // Connection health-check document
+    match /test/{docId} {
+      allow get: if docId == 'connection';
+      allow list, create, update, delete: if false;
+    }
+  }
+}

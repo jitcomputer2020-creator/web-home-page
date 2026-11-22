@@ -238,7 +238,7 @@ export function getYouTubeThumbnailUrl(url: string): string | null {
   return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
 }
 
-export function compressImageFile(file: File, maxWidth = 1280, quality = 0.82): Promise<string> {
+export function compressImageFile(file: File, maxWidth = 900, quality = 0.74): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error('Could not read the selected image file.'));

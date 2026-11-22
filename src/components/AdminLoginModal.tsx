@@ -102,6 +102,10 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
               placeholder="Enter Admin ID"
               className="w-full min-h-[44px] px-3.5 py-2.5 rounded-lg border border-slate-300 font-mono text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0A2463]"
             />
+            <p className="mt-2 text-[11px] text-slate-500">
+              After unlocking, connect your authorized Google Admin account inside the CMS panel to
+              sync updates globally via Firebase Firestore.
+            </p>
           </div>
 
           <div className="flex items-center justify-end gap-2.5 pt-2">
