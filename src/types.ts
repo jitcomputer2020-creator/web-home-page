@@ -163,9 +163,17 @@ export interface CampusShowcaseSettings {
   ctaLabel: string;
 }
 
+export interface PortalLinkItem {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+}
+
 export interface InstituteData {
   branding: BrandingSettings;
   hero: HeroSettings;
+  portals: PortalLinkItem[];
   campusShowcase: CampusShowcaseSettings;
   features: FeatureItem[];
   contact: ContactSettings;

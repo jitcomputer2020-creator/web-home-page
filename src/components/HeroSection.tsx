@@ -5,31 +5,34 @@ import {
   Award,
   CheckCircle2,
   ClipboardCheck,
+  ExternalLink,
   Monitor,
   ShieldCheck,
   Users,
   Video,
 } from 'lucide-react';
-import { DEFAULT_HERO_IMAGE, PORTAL_LINKS } from '../data/defaultData';
-import { BrandingSettings, HeroSettings } from '../types';
+import { DEFAULT_HERO_IMAGE } from '../data/defaultData';
+import { BrandingSettings, HeroSettings, PortalLinkItem } from '../types';
 import { getYouTubeEmbedUrl } from '../utils/storage';
 import { JitLogo } from './JitLogo';
 
 interface HeroSectionProps {
   branding: BrandingSettings;
   hero: HeroSettings;
+  portals: PortalLinkItem[];
   onOpenDemoModal: () => void;
 }
 
-const PORTAL_ICONS = {
+const PORTAL_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   'student-portal': Monitor,
   'jit-group': Users,
   'test-knowledge': ClipboardCheck,
-} as const;
+};
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   branding,
   hero,
+  portals,
   onOpenDemoModal,
 }) => {
   const [imgError, setImgError] = useState(false);
@@ -188,8 +191,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* Quick-Access Institute Portals */}
         <div className="mt-10 pt-8 border-t border-slate-200">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {PORTAL_LINKS.map((portal) => {
-              const Icon = PORTAL_ICONS[portal.id];
+            {portals.map((portal) => {
+              const Icon = PORTAL_ICONS[portal.id] || ExternalLink;
               return (
                 <a
                   key={portal.id}

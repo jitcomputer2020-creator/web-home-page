@@ -1,19 +1,20 @@
 import React from 'react';
 import { Clock, Facebook, Instagram, Lock, Mail, MapPin, Phone, Youtube } from 'lucide-react';
-import { PORTAL_LINKS } from '../data/defaultData';
-import { BrandingSettings, ContactSettings } from '../types';
+import { BrandingSettings, ContactSettings, PortalLinkItem } from '../types';
 import { buildWhatsAppUrl } from '../utils/storage';
 import { JitLogo } from './JitLogo';
 
 interface FooterProps {
   branding: BrandingSettings;
   contact: ContactSettings;
+  portals: PortalLinkItem[];
   onSecretAdminTrigger: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   branding,
   contact,
+  portals,
   onSecretAdminTrigger,
 }) => {
   return (
@@ -113,7 +114,7 @@ export const Footer: React.FC<FooterProps> = ({
                   Location &amp; Hours
                 </a>
               </li>
-              {PORTAL_LINKS.map((portal) => (
+              {portals.map((portal) => (
                 <li key={portal.id}>
                   <a
                     href={portal.url}

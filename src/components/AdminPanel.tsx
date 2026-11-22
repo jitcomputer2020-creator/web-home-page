@@ -5,6 +5,7 @@ import {
   Building2,
   Check,
   Download,
+  ExternalLink,
   Image as ImageIcon,
   Layers,
   LayoutTemplate,
@@ -22,7 +23,7 @@ import {
   Video,
   X,
 } from 'lucide-react';
-import { DEFAULT_HERO_IMAGE, DEFAULT_STOREFRONT_IMAGE } from '../data/defaultData';
+import { DEFAULT_HERO_IMAGE, DEFAULT_STOREFRONT_IMAGE, PORTAL_LINKS } from '../data/defaultData';
 import {
   CertificateRecord,
   Course,
@@ -42,6 +43,7 @@ import {
   MediaType,
   NoticeBadge,
   NoticeItem,
+  PortalLinkItem,
 } from '../types';
 import {
   buildWhatsAppUrl,
@@ -64,6 +66,7 @@ interface AdminPanelProps {
 type AdminTab =
   | 'branding'
   | 'hero-media'
+  | 'portals'
   | 'campus'
   | 'courses'
   | 'gallery'
@@ -866,6 +869,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   }> = [
     { id: 'branding', label: 'Branding & Texts', icon: Type },
     { id: 'hero-media', label: 'Hero Media', icon: LayoutTemplate },
+    { id: 'portals', label: 'Quick Links / Portals', icon: ExternalLink },
     { id: 'campus', label: 'Campus & Facilities', icon: Building2 },
     { id: 'courses', label: 'Courses', icon: BookOpen },
     { id: 'gallery', label: 'Photo & Video Gallery', icon: ImageIcon },
@@ -1564,6 +1568,138 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 className="min-h-[44px] px-6 py-2.5 rounded-lg bg-[#F59E0B] hover:bg-amber-400 text-slate-950 font-bold text-sm cursor-pointer"
               >
                 Save Campus &amp; Facilities Showcase
+              </button>
+            </form>
+          )}
+
+          {/* TAB 2C: QUICK LINKS / PORTALS */}
+          {activeTab === 'portals' && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                showToast('Quick Links / Portals saved to localStorage.');
+              }}
+              className="space-y-6"
+            >
+              <div className="rounded-xl border border-slate-200 p-5 bg-slate-50/50 space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="font-display font-bold text-lg text-[#0A2463]">
+                      Quick-Access Portal Cards (Hero &amp; Footer)
+                    </h3>
+                    <p className="text-xs text-slate-600 mt-0.5">
+                      Edit the Title, Subtitle, and Destination URL for all three portal cards. Changes auto-save to browser storage immediately.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onUpdateData((prev) => ({ ...prev, portals: PORTAL_LINKS }));
+                      showToast('Restored default portal URLs.');
+                    }}
+                    className="inline-flex items-center gap-1.5 min-h-[38px] px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-xs font-semibold text-slate-700 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset Default URLs</span>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {data.portals.map((portal: PortalLinkItem, idx: number) => (
+                    <div
+                      key={portal.id}
+                      className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 space-y-3"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-bold text-amber-700">
+                          Portal Card #{idx + 1}
+                        </span>
+                        <a
+                          href={portal.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#1E40AF] hover:underline"
+                        >
+                          <span>Test Link</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700 mb-1">
+                            Title
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={portal.title}
+                            onChange={(e) => {
+                              const nextTitle = e.target.value;
+                              onUpdateData((prev) => ({
+                                ...prev,
+                                portals: prev.portals.map((item, i) =>
+                                  i === idx ? { ...item, title: nextTitle } : item
+                                ),
+                              }));
+                            }}
+                            className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-medium"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700 mb-1">
+                            Destination URL (Opens in New Tab)
+                          </label>
+                          <input
+                            type="url"
+                            required
+                            value={portal.url}
+                            onChange={(e) => {
+                              const nextUrl = e.target.value;
+                              onUpdateData((prev) => ({
+                                ...prev,
+                                portals: prev.portals.map((item, i) =>
+                                  i === idx ? { ...item, url: nextUrl } : item
+                                ),
+                              }));
+                            }}
+                            placeholder="https://..."
+                            className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          Subtitle / Description
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={portal.description}
+                          onChange={(e) => {
+                            const nextDesc = e.target.value;
+                            onUpdateData((prev) => ({
+                              ...prev,
+                              portals: prev.portals.map((item, i) =>
+                                i === idx ? { ...item, description: nextDesc } : item
+                              ),
+                            }));
+                          }}
+                          className="w-full min-h-[42px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="min-h-[44px] px-6 py-2.5 rounded-lg bg-[#F59E0B] hover:bg-amber-400 text-slate-950 font-bold text-sm cursor-pointer"
+              >
+                Save Quick Links / Portals
               </button>
             </form>
           )}

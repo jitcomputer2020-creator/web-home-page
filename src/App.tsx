@@ -126,6 +126,7 @@ export default function App() {
         <HeroSection
           branding={data.branding}
           hero={data.hero}
+          portals={data.portals}
           onOpenDemoModal={() => setDemoModalOpen(true)}
         />
         <CustomSectionsRenderer sections={data.customSections} placement="after-hero" />
@@ -164,6 +165,7 @@ export default function App() {
       <Footer
         branding={data.branding}
         contact={data.contact}
+        portals={data.portals}
         onSecretAdminTrigger={handleSecretAdminTrigger}
       />
 

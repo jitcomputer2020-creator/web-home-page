@@ -1,11 +1,11 @@
-import { InstituteData } from '../types';
+import { InstituteData, PortalLinkItem } from '../types';
 
 export const DEFAULT_HERO_IMAGE = '/src/assets/images/hero_jit_campus_1795242509151.jpg';
 export const DEFAULT_STOREFRONT_IMAGE =
   '/src/assets/images/jit_campus_storefront_1795272079858.jpg';
 export const ADMIN_ACCESS_ID = '8017462677';
 
-export const PORTAL_LINKS = [
+export const PORTAL_LINKS: PortalLinkItem[] = [
   {
     id: 'student-portal',
     title: 'Student Portal',
@@ -22,9 +22,9 @@ export const PORTAL_LINKS = [
     id: 'test-knowledge',
     title: 'Test Your Knowledge',
     description: 'Practice mock assessments & certification readiness tests.',
-    url: 'https://jitcomputer.ct.ws/test-your-knowledge/',
+    url: 'https://test-your-knowledge-3k65ls8ju-jit-group.vercel.app/',
   },
-] as const;
+];
 
 export const PREFERRED_TIMINGS = [
   'Morning (8:00 AM – 11:00 AM)',
@@ -56,6 +56,7 @@ export const DEFAULT_INSTITUTE_DATA: InstituteData = {
     heroVideoUrl: '',
     mediaCaption: '100% Practical Computer, Digital Marketing & Stock Market Lab',
   },
+  portals: PORTAL_LINKS,
   campusShowcase: {
     sectionTitle: 'Our Campus & Facilities',
     storefrontImageUrl: DEFAULT_STOREFRONT_IMAGE,

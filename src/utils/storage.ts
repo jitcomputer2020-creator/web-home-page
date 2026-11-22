@@ -42,6 +42,25 @@ export function normalizeData(parsed: Partial<InstituteData>): InstituteData {
       heroVideoUrl: parsed.hero?.heroVideoUrl?.trim() || DEFAULT_INSTITUTE_DATA.hero.heroVideoUrl,
       mediaCaption: parsed.hero?.mediaCaption?.trim() || DEFAULT_INSTITUTE_DATA.hero.mediaCaption,
     },
+    portals:
+      Array.isArray(parsed.portals) && parsed.portals.length > 0
+        ? parsed.portals.map((p, idx) => {
+            const fallback =
+              DEFAULT_INSTITUTE_DATA.portals[idx] ?? DEFAULT_INSTITUTE_DATA.portals[0];
+            const rawUrl = p.url?.trim() || fallback.url;
+            const migratedUrl =
+              p.id === 'test-knowledge' &&
+              rawUrl === 'https://jitcomputer.ct.ws/test-your-knowledge/'
+                ? fallback.url
+                : rawUrl;
+            return {
+              id: p.id || fallback.id,
+              title: p.title?.trim() || fallback.title,
+              description: p.description?.trim() ?? fallback.description,
+              url: migratedUrl,
+            };
+          })
+        : DEFAULT_INSTITUTE_DATA.portals,
     campusShowcase: {
       sectionTitle:
         parsed.campusShowcase?.sectionTitle?.trim() ||
