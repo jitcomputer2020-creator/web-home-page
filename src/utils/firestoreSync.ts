@@ -71,6 +71,7 @@ export async function checkIsCloudAdmin(user: User | null): Promise<boolean> {
   if (user.email?.toLowerCase() === ADMIN_PRIMARY_EMAIL) {
     return true;
   }
+  if (!db) return false;
   try {
     const adminDoc = await getDoc(doc(db, 'admins', user.uid));
     return adminDoc.exists();
@@ -89,17 +90,23 @@ export async function signInAdminWithGoogle(): Promise<{
   user: User;
   isAuthorizedAdmin: boolean;
 }> {
+  if (!isFirebaseConfigured || !auth) {
+    throw new Error(
+      'Firebase environment variables (VITE_FIREBASE_*) are not configured for this deployment.'
+    );
+  }
   const credential = await signInWithPopup(auth, googleProvider);
   const isAuthorizedAdmin = await checkIsCloudAdmin(credential.user);
   return { user: credential.user, isAuthorizedAdmin };
 }
 
 export async function signOutAdminGoogle(): Promise<void> {
+  if (!auth) return;
   await signOut(auth);
 }
 
 export async function saveHomepageToFirestore(data: InstituteData): Promise<void> {
-  if (!isFirebaseConfigured) return;
+  if (!isFirebaseConfigured || !db || !auth) return;
   const user = auth.currentUser;
   if (!user) {
     throw new Error('Sign in with your Google Admin account to save changes to the cloud.');
@@ -125,7 +132,7 @@ export async function saveHomepageToFirestore(data: InstituteData): Promise<void
 }
 
 export async function createEnquiryInFirestore(record: AdmissionEnquiry): Promise<void> {
-  if (!isFirebaseConfigured) return;
+  if (!isFirebaseConfigured || !db) return;
   const cleanDigits = record.mobile.replace(/\D/g, '');
   const trimmedName = record.name.trim().slice(0, 120);
   if (cleanDigits.length < 10 || cleanDigits.length > 15 || trimmedName.length < 2) {
@@ -162,7 +169,7 @@ export async function updateEnquiryStatusInFirestore(
   enquiryId: string,
   status: EnquiryStatus
 ): Promise<void> {
-  if (!isFirebaseConfigured || !auth.currentUser) return;
+  if (!isFirebaseConfigured || !db || !auth?.currentUser) return;
   const path = `${ENQUIRIES_COLLECTION}/${enquiryId}`;
   try {
     await updateDoc(doc(db, ENQUIRIES_COLLECTION, enquiryId), { status });
@@ -172,7 +179,7 @@ export async function updateEnquiryStatusInFirestore(
 }
 
 export async function deleteEnquiryInFirestore(enquiryId: string): Promise<void> {
-  if (!isFirebaseConfigured || !auth.currentUser) return;
+  if (!isFirebaseConfigured || !db || !auth?.currentUser) return;
   const path = `${ENQUIRIES_COLLECTION}/${enquiryId}`;
   try {
     await deleteDoc(doc(db, ENQUIRIES_COLLECTION, enquiryId));

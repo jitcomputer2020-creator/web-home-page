@@ -1,40 +1,49 @@
 import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
-import { GoogleAuthProvider, getAuth } from 'firebase/auth';
-import { doc, getDocFromServer, getFirestore } from 'firebase/firestore';
-import rawFirebaseConfig from '../firebase-applet-config.json';
+import { Auth, GoogleAuthProvider, getAuth } from 'firebase/auth';
+import { Firestore, doc, getDocFromServer, getFirestore } from 'firebase/firestore';
 
 /**
  * Firebase Configuration
  *
- * Loaded from the provisioned firebase-applet-config.json file.
- * If migrating to a different Firebase project later, update firebase-applet-config.json
- * or replace the values below.
+ * Reads strictly from Vite environment variables (VITE_FIREBASE_*).
+ * Configure these variables in your Vercel Project Settings (Environment Variables)
+ * or local .env file. No hardcoded fallback keys from other projects are used.
  */
 export const firebaseConfig = {
-  apiKey: rawFirebaseConfig.apiKey || 'YOUR_API_KEY',
-  authDomain: rawFirebaseConfig.authDomain || 'YOUR_PROJECT_ID.firebaseapp.com',
-  projectId: rawFirebaseConfig.projectId || 'YOUR_PROJECT_ID',
-  storageBucket: rawFirebaseConfig.storageBucket || 'YOUR_PROJECT_ID.firebasestorage.app',
-  messagingSenderId: rawFirebaseConfig.messagingSenderId || 'YOUR_MESSAGING_SENDER_ID',
-  appId: rawFirebaseConfig.appId || 'YOUR_APP_ID',
-  firestoreDatabaseId: rawFirebaseConfig.firestoreDatabaseId || '(default)',
+  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY || '').trim(),
+  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '').trim(),
+  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID || '').trim(),
+  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '').trim(),
+  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '').trim(),
+  appId: (import.meta.env.VITE_FIREBASE_APP_ID || '').trim(),
 };
 
 export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey &&
-    !firebaseConfig.apiKey.startsWith('YOUR_') &&
+    firebaseConfig.authDomain &&
     firebaseConfig.projectId &&
-    !firebaseConfig.projectId.startsWith('YOUR_')
+    firebaseConfig.appId
 );
 
-const app: FirebaseApp = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+const rawDatabaseId = (import.meta.env.VITE_FIREBASE_DATABASE_ID || '').trim();
+const customDatabaseId =
+  rawDatabaseId && rawDatabaseId !== 'default' && rawDatabaseId !== '(default)'
+    ? rawDatabaseId
+    : undefined;
 
-export const db =
-  firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)'
-    ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
-    : getFirestore(app);
+const app: FirebaseApp | null = isFirebaseConfigured
+  ? getApps().length > 0
+    ? getApp()
+    : initializeApp(firebaseConfig)
+  : null;
 
-export const auth = getAuth(app);
+export const db: Firestore | null = app
+  ? customDatabaseId
+    ? getFirestore(app, customDatabaseId)
+    : getFirestore(app)
+  : null;
+
+export const auth: Auth | null = app ? getAuth(app) : null;
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
@@ -75,16 +84,17 @@ export function handleFirestoreError(
   operationType: OperationType,
   path: string | null
 ): never {
+  const currentUser = auth?.currentUser ?? null;
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
+      userId: currentUser?.uid,
+      email: currentUser?.email,
+      emailVerified: currentUser?.emailVerified,
+      isAnonymous: currentUser?.isAnonymous,
+      tenantId: currentUser?.tenantId,
       providerInfo:
-        auth.currentUser?.providerData?.map((provider) => ({
+        currentUser?.providerData?.map((provider) => ({
           providerId: provider.providerId,
           email: provider.email,
         })) || [],
@@ -98,7 +108,7 @@ export function handleFirestoreError(
 }
 
 async function testConnection(): Promise<void> {
-  if (!isFirebaseConfigured) return;
+  if (!isFirebaseConfigured || !db) return;
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
   } catch (error) {

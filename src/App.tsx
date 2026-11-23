@@ -94,7 +94,7 @@ export default function App() {
 
   // Track Firebase Authentication readiness and Admin privileges
   useEffect(() => {
-    if (!isFirebaseConfigured) {
+    if (!isFirebaseConfigured || !auth) {
       setAuthReady(true);
       return;
     }
@@ -115,7 +115,7 @@ export default function App() {
 
   // Live real-time listener for public homepage CMS content
   useEffect(() => {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured || !db) return;
 
     const homepageRef = doc(db, HOMEPAGE_COLLECTION, HOMEPAGE_DOC_ID);
     const unsubscribe = onSnapshot(
@@ -148,7 +148,7 @@ export default function App() {
 
   // Admin-only real-time listener for isolated student enquiries
   useEffect(() => {
-    if (!isFirebaseConfigured || !authReady || !isPrimaryTokenAdmin(firebaseUser)) {
+    if (!isFirebaseConfigured || !db || !authReady || !isPrimaryTokenAdmin(firebaseUser)) {
       return;
     }
 
